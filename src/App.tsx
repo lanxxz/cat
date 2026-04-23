@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { TOWER_TYPES, TILE_SIZE, GRID_WIDTH, GRID_HEIGHT, PATH_COORDS, WAVES, ENEMY_TYPES, GameState } from './game/config';
+import { TEXT } from './game/i18n';
 
 interface Tower { x: number; y: number; type: number; lastAttack: number; angle: number; }
 interface Enemy { x: number; y: number; type: number; health: number; maxHealth: number; speed: number; reward: number; pathIndex: number; wobble: number; }
@@ -38,7 +39,7 @@ function spawnBoxes(map: number[][]) {
 function HUD({ wave, gold, lives, score }: { wave: number; gold: number; lives: number; score: number }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', width: '768px', padding: '12px 20px', background: 'linear-gradient(90deg, #FFE4EC, #FFF, #FFE4EC)', borderRadius: '20px', border: '4px solid #FFB6C1', fontFamily: 'Nunito, sans-serif', fontSize: '20px', color: '#5D4037' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', background: 'rgba(255,255,255,0.8)', borderRadius: '15px' }}><span style={{ fontSize: '24px' }}>🌊</span><span>Wave</span><span style={{ color: '#FF6B9D', fontFamily: 'Fredoka One, cursive', minWidth: '40px' }}>{wave}/15</span></div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', background: 'rgba(255,255,255,0.8)', borderRadius: '15px' }}><span style={{ fontSize: '24px' }}>🌊</span><span>{TEXT.wave}</span><span style={{ color: '#FF6B9D', fontFamily: 'Fredoka One, cursive', minWidth: '40px' }}>{wave}/15</span></div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', background: 'rgba(255,255,255,0.8)', borderRadius: '15px' }}><span style={{ fontSize: '24px' }}>🪙</span><span style={{ color: '#FF6B9D', fontFamily: 'Fredoka One, cursive' }}>{gold}</span></div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', background: 'rgba(255,255,255,0.8)', borderRadius: '15px' }}><span style={{ fontSize: '24px' }}>❤️</span><span style={{ color: '#FF6B9D', fontFamily: 'Fredoka One, cursive' }}>{lives}</span></div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', background: 'rgba(255,255,255,0.8)', borderRadius: '15px' }}><span style={{ fontSize: '24px' }}>⭐</span><span style={{ color: '#FF6B9D', fontFamily: 'Fredoka One, cursive' }}>{score}</span></div>
@@ -52,7 +53,7 @@ function TowerPanel({ selectedTowerType, gold, onSelectTower }: { selectedTowerT
       {TOWER_TYPES.map((tower, index) => (
         <button key={tower.name} onClick={() => onSelectTower(index)} disabled={gold < tower.cost} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '12px 20px', background: selectedTowerType === index ? 'linear-gradient(180deg, #FF80AB 0%, #FF4081 100%)' : 'linear-gradient(180deg, #FFF 0%, #F8BBD9 100%)', border: `3px solid ${selectedTowerType === index ? '#C51162' : '#FF80AB'}`, borderRadius: '15px', cursor: gold < tower.cost ? 'not-allowed' : 'pointer', opacity: gold < tower.cost ? 0.5 : 1, minWidth: '140px', transition: 'all 0.2s ease', fontFamily: 'Nunito, sans-serif' }}>
           <span style={{ fontSize: '36px', marginBottom: '5px' }}>{index === 0 ? '😸' : index === 1 ? '😺' : '😻'}</span>
-          <span style={{ fontFamily: 'Fredoka One, cursive', fontSize: '14px', color: selectedTowerType === index ? 'white' : '#5D4037' }}>{tower.name}</span>
+          <span style={{ fontFamily: 'Fredoka One, cursive', fontSize: '14px', color: selectedTowerType === index ? 'white' : '#5D4037' }}>{TEXT.towerNames[index]}</span>
           <span style={{ fontSize: '16px', color: selectedTowerType === index ? 'white' : '#FFA000', fontWeight: 800 }}>🪙 {tower.cost}</span>
         </button>
       ))}
@@ -65,7 +66,7 @@ function Overlay({ title, subtitle, score, buttonText, onButtonClick }: { title:
     <div style={{ position: 'absolute', top: 0, left: 0, width: '768px', height: '512px', background: 'rgba(255, 248, 231, 0.95)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', borderRadius: '14px', zIndex: 100 }}>
       <div style={{ fontFamily: 'Fredoka One, cursive', fontSize: '56px', color: '#FF6B9D', textShadow: '4px 4px 0 #FFD5E5', marginBottom: '20px' }}>{title}</div>
       {subtitle && <div style={{ fontSize: '24px', color: '#8D6E63', marginBottom: '30px' }}>{subtitle}</div>}
-      {score !== undefined && <div style={{ fontFamily: 'Fredoka One, cursive', fontSize: '36px', color: '#FFA000', margin: '20px 0' }}>Score: {score}</div>}
+      {score !== undefined && <div style={{ fontFamily: 'Fredoka One, cursive', fontSize: '36px', color: '#FFA000', margin: '20px 0' }}>{TEXT.finalScore}: {score}</div>}
       <button onClick={onButtonClick} style={{ fontFamily: 'Fredoka One, cursive', fontSize: '28px', padding: '15px 60px', background: 'linear-gradient(180deg, #4CAF50 0%, #388E3C 100%)', color: 'white', border: '4px solid #2E7D32', borderRadius: '50px', cursor: 'pointer', boxShadow: '0 6px 0 #1B5E20' }}>{buttonText}</button>
     </div>
   );
@@ -74,14 +75,13 @@ function Overlay({ title, subtitle, score, buttonText, onButtonClick }: { title:
 function StartOverlay({ onStart }: { onStart: () => void }) {
   return (
     <div style={{ position: 'absolute', top: 0, left: 0, width: '768px', height: '512px', background: 'rgba(255, 248, 231, 0.95)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', borderRadius: '14px', zIndex: 100 }}>
-      <div style={{ fontFamily: 'Fredoka One, cursive', fontSize: '56px', color: '#FF6B9D', textShadow: '4px 4px 0 #FFD5E5', marginBottom: '20px' }}>🥫 "金金" Defense 🐱</div>
+      <div style={{ fontFamily: 'Fredoka One, cursive', fontSize: '56px', color: '#FF6B9D', textShadow: '4px 4px 0 #FFD5E5', marginBottom: '20px' }}>{TEXT.startTitle}</div>
       <div style={{ background: 'rgba(255, 255, 255, 0.9)', padding: '20px', borderRadius: '15px', marginBottom: '30px', textAlign: 'center', maxWidth: '500px' }}>
-        <p style={{ color: '#5D4037', fontSize: '16px', margin: '8px 0' }}>🛡️ <strong>Cute cats</strong> vs <strong>Household Pests!</strong></p>
-        <p style={{ color: '#5D4037', fontSize: '16px', margin: '8px 0' }}>🐛 <strong>Cucumbers</strong> and <strong>Vacuum Cleaners</strong> are attacking!</p>
-        <p style={{ color: '#5D4037', fontSize: '16px', margin: '8px 0' }}>🧀 <strong>Click boxes</strong> to break them and free space!</p>
-        <p style={{ color: '#5D4037', fontSize: '16px', margin: '8px 0' }}>🏆 Survive <strong>15 Waves</strong> to win!</p>
+        {TEXT.instructions.map((text, i) => (
+          <p key={i} style={{ color: '#5D4037', fontSize: '16px', margin: '8px 0' }}>{text}</p>
+        ))}
       </div>
-      <button onClick={onStart} style={{ fontFamily: 'Fredoka One, cursive', fontSize: '28px', padding: '15px 60px', background: 'linear-gradient(180deg, #4CAF50 0%, #388E3C 100%)', color: 'white', border: '4px solid #2E7D32', borderRadius: '50px', cursor: 'pointer', boxShadow: '0 6px 0 #1B5E20' }}>START 🐱</button>
+      <button onClick={onStart} style={{ fontFamily: 'Fredoka One, cursive', fontSize: '28px', padding: '15px 60px', background: 'linear-gradient(180deg, #4CAF50 0%, #388E3C 100%)', color: 'white', border: '4px solid #2E7D32', borderRadius: '50px', cursor: 'pointer', boxShadow: '0 6px 0 #1B5E20' }}>{TEXT.startButton}</button>
     </div>
   );
 }
@@ -444,13 +444,13 @@ export default function App() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
-      <h1 style={{ fontFamily: 'Fredoka One, cursive', fontSize: '48px', color: '#FF6B9D', textShadow: '3px 3px 0 #FFF, 5px 5px 0 #FFD5E5', letterSpacing: '4px', animation: 'float 3s ease-in-out infinite' }}>🐱 Hajimi Defense 🥫</h1>
+      <h1 style={{ fontFamily: 'Fredoka One, cursive', fontSize: '48px', color: '#FF6B9D', textShadow: '3px 3px 0 #FFF, 5px 5px 0 #FFD5E5', letterSpacing: '4px', animation: 'float 3s ease-in-out infinite' }}>{TEXT.title}</h1>
       <HUD wave={wave} gold={gold} lives={lives} score={score} />
       <div style={{ position: 'relative' }}>
         <canvas ref={canvasRef} width={GRID_WIDTH * TILE_SIZE} height={GRID_HEIGHT * TILE_SIZE} onClick={handleCanvasClick} onMouseMove={handleCanvasHover} style={{ border: '6px solid #FFB6C1', borderRadius: '20px', boxShadow: '0 10px 30px rgba(255, 107, 157, 0.3), inset 0 0 50px rgba(255, 255, 255, 0.5)', cursor: 'crosshair', background: '#FFF8E7', display: 'block' }} />
         {gameState === 'start' && <StartOverlay onStart={startGame} />}
-        {gameState === 'gameover' && <Overlay title="💔 Game Over 💔" score={score} buttonText="TRY AGAIN 🔄" onButtonClick={startGame} />}
-        {gameState === 'victory' && <Overlay title="🎉 YOU WIN! 🎉" subtitle="🐱 The Golden Tuna is Safe! 🥫" score={score} buttonText="PLAY AGAIN 🐱" onButtonClick={startGame} />}
+        {gameState === 'gameover' && <Overlay title={TEXT.gameOver} score={score} buttonText={TEXT.tryAgain} onButtonClick={startGame} />}
+        {gameState === 'victory' && <Overlay title={TEXT.victory} subtitle={TEXT.victorySubtitle} score={score} buttonText={TEXT.playAgain} onButtonClick={startGame} />}
       </div>
       <TowerPanel selectedTowerType={selectedTowerType} gold={gold} onSelectTower={handleSelectTower} />
     </div>
