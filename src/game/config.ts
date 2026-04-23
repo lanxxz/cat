@@ -48,8 +48,8 @@ export const TOWER_TYPES: TowerType[] = [
 ];
 
 export const ENEMY_TYPES: EnemyType[] = [
-  { name: 'Cucumber', health: 30, speed: 2, reward: 10, color: '#7CB342', emoji: '🥒' },
-  { name: 'Vacuum', health: 100, speed: 1, reward: 25, color: '#607D8B', emoji: '🧹' }
+  { name: 'Cucumber', health: 30, speed: 1, reward: 10, color: '#7CB342', emoji: '🥒' },
+  { name: 'Vacuum', health: 100, speed: 0.5, reward: 25, color: '#607D8B', emoji: '🧹' }
 ];
 
 // Predefined path coordinates

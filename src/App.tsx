@@ -95,7 +95,7 @@ export default function App() {
   const [wave, setWave] = useState(1);
   const [selectedTowerType, setSelectedTowerType] = useState(-1);
 
-  const gameRef = useRef({ map: [] as number[][], path: [] as { x: number; y: number }[], towers: [] as Tower[], enemies: [] as Enemy[], projectiles: [] as Projectile[], particles: [] as Particle[], boxes: [] as { x: number; y: number }[], enemiesToSpawn: [] as number[], enemySpawnTimer: 0, waveInProgress: false, hoverTile: { x: -1, y: -1 } });
+  const gameRef = useRef({ map: [] as number[][], path: [] as { x: number; y: number }[], towers: [] as Tower[], enemies: [] as Enemy[], projectiles: [] as Projectile[], particles: [] as Particle[], boxes: [] as { x: number; y: number }[], enemiesToSpawn: [] as number[], enemySpawnTimer: 0, waveInProgress: false, hoverTile: { x: -1, y: -1 }, enemiesLeaked: 0 });
   const animationRef = useRef<number>(0);
 
   const createParticle = (x: number, y: number, color: string): Particle => ({ x, y, vx: (Math.random() - 0.5) * 8, vy: (Math.random() - 0.5) * 8 - 3, color, life: 30 + Math.random() * 20, alpha: 1, size: 4 + Math.random() * 4 });
@@ -113,7 +113,7 @@ export default function App() {
   const startGame = useCallback(() => {
     const { map, path } = buildInitialMap();
     const boxes = spawnBoxes(map);
-    gameRef.current = { map, path, towers: [], enemies: [], projectiles: [], particles: [], boxes, enemiesToSpawn: [], enemySpawnTimer: 0, waveInProgress: false, hoverTile: { x: -1, y: -1 } };
+    gameRef.current = { map, path, towers: [], enemies: [], projectiles: [], particles: [], boxes, enemiesToSpawn: [], enemySpawnTimer: 0, waveInProgress: false, hoverTile: { x: -1, y: -1 }, enemiesLeaked: 0 };
     setGold(100); setLives(10); setScore(0); setWave(1); setSelectedTowerType(-1); setGameState('playing'); startWave(1);
   }, [startWave]);
 
@@ -165,7 +165,23 @@ export default function App() {
     const spawnEnemy = (type: number) => {
       const enemyType = ENEMY_TYPES[type];
       const startPos = gameRef.current.path[0];
-      gameRef.current.enemies.push({ x: startPos.x, y: startPos.y, type, health: enemyType.health, maxHealth: enemyType.health, speed: enemyType.speed, reward: enemyType.reward, pathIndex: 2, wobble: Math.random() * Math.PI * 2 });
+      // Speed increases with wave number and enemies leaked
+      const waveBonus = (wave - 1) * 0.1; // 10% faster per wave
+      const leakBonus = gameRef.current.enemiesLeaked * 0.05; // 5% faster per enemy leaked
+      const speedMultiplier = 1 + waveBonus + leakBonus;
+      const finalSpeed = enemyType.speed * speedMultiplier;
+      
+      gameRef.current.enemies.push({ 
+        x: startPos.x, 
+        y: startPos.y, 
+        type, 
+        health: enemyType.health, 
+        maxHealth: enemyType.health, 
+        speed: finalSpeed, 
+        reward: enemyType.reward, 
+        pathIndex: 2, 
+        wobble: Math.random() * Math.PI * 2 
+      });
     };
 
     const damageEnemy = (enemy: Enemy, damage: number) => {
@@ -174,8 +190,12 @@ export default function App() {
       if (enemy.health <= 0) {
         const idx = state.enemies.indexOf(enemy);
         if (idx !== -1) {
-          setGold(prev => prev + enemy.reward);
-          setScore(prev => prev + enemy.reward * 10);
+          // Score multiplier based on enemy speed (faster = more points)
+          const speedBonus = Math.floor(enemy.speed * 10);
+          const earnedGold = enemy.reward;
+          const earnedScore = (enemy.reward + speedBonus) * 10;
+          setGold(prev => prev + earnedGold);
+          setScore(prev => prev + earnedScore);
           for (let p = 0; p < 15; p++) state.particles.push(createParticle(enemy.x, enemy.y, '#7CB342'));
           state.enemies.splice(idx, 1);
         }
@@ -222,96 +242,369 @@ export default function App() {
       }
 
       for (const tower of state.towers) {
-        const towerType = TOWER_TYPES[tower.type];
-        ctx.fillStyle = 'rgba(0,0,0,0.2)';
+        const tx = tower.x;
+        const ty = tower.y;
+        
+        // Shadow
+        ctx.fillStyle = 'rgba(0,0,0,0.15)';
         ctx.beginPath();
-        ctx.ellipse(tower.x, tower.y + 20, 20, 8, 0, 0, Math.PI * 2);
+        ctx.ellipse(tx, ty + 22, 24, 10, 0, 0, Math.PI * 2);
         ctx.fill();
-        ctx.fillStyle = towerType.color;
+        
         if (tower.type === 0) {
+          // 😸 Spitting Tabby - Orange tabby cat
+          // Body (chibi style)
+          ctx.fillStyle = '#FF8C42'; // Orange body
           ctx.beginPath();
-          ctx.ellipse(tower.x, tower.y + 5, 22, 18, 0, 0, Math.PI * 2);
+          ctx.ellipse(tx, ty + 10, 24, 20, 0, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // Stripes
+          ctx.strokeStyle = '#E65100';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(tx - 12, ty); ctx.lineTo(tx - 6, ty + 12);
+          ctx.moveTo(tx + 12, ty); ctx.lineTo(tx + 6, ty + 12);
+          ctx.moveTo(tx, ty - 4); ctx.lineTo(tx, ty + 10);
+          ctx.stroke();
+          
+          // Head (round)
+          ctx.fillStyle = '#FF8C42';
+          ctx.beginPath();
+          ctx.arc(tx, ty - 8, 20, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // Ears (small triangles)
+          ctx.fillStyle = '#FF8C42';
+          ctx.beginPath();
+          ctx.moveTo(tx - 14, ty - 20); ctx.lineTo(tx - 10, ty - 32); ctx.lineTo(tx - 4, ty - 22);
           ctx.fill();
           ctx.beginPath();
-          ctx.arc(tower.x, tower.y - 10, 18, 0, Math.PI * 2);
+          ctx.moveTo(tx + 14, ty - 20); ctx.lineTo(tx + 10, ty - 32); ctx.lineTo(tx + 4, ty - 22);
           ctx.fill();
-          ctx.fillStyle = '#4E342E';
-          ctx.beginPath();
-          ctx.arc(tower.x - 7, tower.y - 12, 4, 0, Math.PI * 2);
-          ctx.arc(tower.x + 7, tower.y - 12, 4, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.fillStyle = '#FF8A80';
-          ctx.beginPath();
-          ctx.arc(tower.x, tower.y - 8, 3, 0, Math.PI * 2);
-          ctx.fill();
-        } else if (tower.type === 1) {
-          ctx.beginPath();
-          ctx.ellipse(tower.x, tower.y + 5, 22, 18, 0, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.beginPath();
-          ctx.arc(tower.x, tower.y - 10, 18, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.fillStyle = '#1E88E5';
-          ctx.beginPath();
-          ctx.ellipse(tower.x - 7, tower.y - 12, 5, 6, 0, 0, Math.PI * 2);
-          ctx.ellipse(tower.x + 7, tower.y - 12, 5, 6, 0, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.fillStyle = '#000';
-          ctx.beginPath();
-          ctx.arc(tower.x - 7, tower.y - 12, 2, 0, Math.PI * 2);
-          ctx.arc(tower.x + 7, tower.y - 12, 2, 0, Math.PI * 2);
-          ctx.fill();
-        } else {
-          ctx.beginPath();
-          ctx.ellipse(tower.x, tower.y + 8, 26, 22, 0, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.beginPath();
-          ctx.arc(tower.x, tower.y - 8, 20, 0, Math.PI * 2);
-          ctx.fill();
+          
+          // Inner ears (pink)
           ctx.fillStyle = '#FFAB91';
           ctx.beginPath();
-          ctx.ellipse(tower.x - 12, tower.y - 4, 6, 4, 0, 0, Math.PI * 2);
-          ctx.ellipse(tower.x + 12, tower.y - 4, 6, 4, 0, 0, Math.PI * 2);
+          ctx.moveTo(tx - 12, ty - 22); ctx.lineTo(tx - 10, ty - 28); ctx.lineTo(tx - 6, ty - 22);
           ctx.fill();
+          ctx.beginPath();
+          ctx.moveTo(tx + 12, ty - 22); ctx.lineTo(tx + 10, ty - 28); ctx.lineTo(tx + 6, ty - 22);
+          ctx.fill();
+          
+          // Eyes (big kawaii)
+          ctx.fillStyle = '#4E342E';
+          ctx.beginPath();
+          ctx.ellipse(tx - 7, ty - 10, 4, 5, 0, 0, Math.PI * 2);
+          ctx.ellipse(tx + 7, ty - 10, 4, 5, 0, 0, Math.PI * 2);
+          ctx.fill();
+          // Eye shine
+          ctx.fillStyle = '#FFF';
+          ctx.beginPath();
+          ctx.arc(tx - 8, ty - 12, 2, 0, Math.PI * 2);
+          ctx.arc(tx + 6, ty - 12, 2, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // Blush
+          ctx.fillStyle = '#FFAB91';
+          ctx.beginPath();
+          ctx.ellipse(tx - 14, ty - 2, 5, 3, 0, 0, Math.PI * 2);
+          ctx.ellipse(tx + 14, ty - 2, 5, 3, 0, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // Nose
+          ctx.fillStyle = '#FF8A80';
+          ctx.beginPath();
+          ctx.arc(tx, ty - 4, 3, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // Mouth (small smile)
+          ctx.strokeStyle = '#4E342E';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(tx, ty, 4, 0.2 * Math.PI, 0.8 * Math.PI);
+          ctx.stroke();
+          
+        } else if (tower.type === 1) {
+          // 😺 Siamese Sniper - Grey cat with blue eyes
+          // Body
+          ctx.fillStyle = '#B0BEC5';
+          ctx.beginPath();
+          ctx.ellipse(tx, ty + 10, 24, 20, 0, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // Head
+          ctx.beginPath();
+          ctx.arc(tx, ty - 8, 20, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // Pointed ears
+          ctx.fillStyle = '#B0BEC5';
+          ctx.beginPath();
+          ctx.moveTo(tx - 14, ty - 20); ctx.lineTo(tx - 8, ty - 34); ctx.lineTo(tx - 2, ty - 22);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.moveTo(tx + 14, ty - 20); ctx.lineTo(tx + 8, ty - 34); ctx.lineTo(tx + 2, ty - 22);
+          ctx.fill();
+          
+          // Inner ears
+          ctx.fillStyle = '#FFE0B2';
+          ctx.beginPath();
+          ctx.moveTo(tx - 12, ty - 22); ctx.lineTo(tx - 8, ty - 30); ctx.lineTo(tx - 4, ty - 22);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.moveTo(tx + 12, ty - 22); ctx.lineTo(tx + 8, ty - 30); ctx.lineTo(tx + 4, ty - 22);
+          ctx.fill();
+          
+          // Blue eyes (sniper eyes - serious)
+          ctx.fillStyle = '#1E88E5';
+          ctx.beginPath();
+          ctx.ellipse(tx - 7, ty - 10, 5, 6, 0, 0, Math.PI * 2);
+          ctx.ellipse(tx + 7, ty - 10, 5, 6, 0, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // Pupil
+          ctx.fillStyle = '#000';
+          ctx.beginPath();
+          ctx.arc(tx - 7, ty - 10, 2, 0, Math.PI * 2);
+          ctx.arc(tx + 7, ty - 10, 2, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // Eye shine
+          ctx.fillStyle = '#FFF';
+          ctx.beginPath();
+          ctx.arc(tx - 9, ty - 12, 2, 0, Math.PI * 2);
+          ctx.arc(tx + 5, ty - 12, 2, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // Blush
+          ctx.fillStyle = '#FFAB91';
+          ctx.beginPath();
+          ctx.ellipse(tx - 14, ty - 2, 5, 3, 0, 0, Math.PI * 2);
+          ctx.ellipse(tx + 14, ty - 2, 5, 3, 0, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // Triangle nose
+          ctx.fillStyle = '#FF8A80';
+          ctx.beginPath();
+          ctx.moveTo(tx, ty - 3);
+          ctx.lineTo(tx - 3, ty);
+          ctx.lineTo(tx + 3, ty);
+          ctx.fill();
+          
+          // Serious mouth
+          ctx.strokeStyle = '#4E342E';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(tx - 3, ty + 4);
+          ctx.lineTo(tx, ty + 3);
+          ctx.lineTo(tx + 3, ty + 4);
+          ctx.stroke();
+          
+        } else {
+          // 😻 Orange Bread Fat Cat - Fat orange cat
+          // FAT body (really round)
+          ctx.fillStyle = '#FF9800';
+          ctx.beginPath();
+          ctx.ellipse(tx, ty + 12, 28, 24, 0, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // Belly (lighter)
+          ctx.fillStyle = '#FFB74D';
+          ctx.beginPath();
+          ctx.ellipse(tx, ty + 14, 18, 14, 0, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // Head (also round)
+          ctx.beginPath();
+          ctx.arc(tx, ty - 6, 22, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // Tiny ears (due to being fat)
+          ctx.beginPath();
+          ctx.moveTo(tx - 12, ty - 20); ctx.lineTo(tx - 6, ty - 28); ctx.lineTo(tx, ty - 22);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.moveTo(tx + 12, ty - 20); ctx.lineTo(tx + 6, ty - 28); ctx.lineTo(tx, ty - 22);
+          ctx.fill();
+          
+          // Inner ears (pink)
+          ctx.fillStyle = '#FFAB91';
+          ctx.beginPath();
+          ctx.moveTo(tx - 10, ty - 22); ctx.lineTo(tx - 6, ty - 26); ctx.lineTo(tx - 2, ty - 22);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.moveTo(tx + 10, ty - 22); ctx.lineTo(tx + 6, ty - 26); ctx.lineTo(tx + 2, ty - 22);
+          ctx.fill();
+          
+          // Happy closed eyes ^_^
+          ctx.strokeStyle = '#5D4037';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(tx - 8, ty - 8, 6, Math.PI, 0);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(tx + 8, ty - 8, 6, Math.PI, 0);
+          ctx.stroke();
+          
+          // Big blush
+          ctx.fillStyle = '#FFAB91';
+          ctx.beginPath();
+          ctx.ellipse(tx - 14, ty, 8, 5, 0, 0, Math.PI * 2);
+          ctx.ellipse(tx + 14, ty, 8, 5, 0, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // Happy nose
+          ctx.fillStyle = '#FF8A80';
+          ctx.beginPath();
+          ctx.arc(tx, ty, 4, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // Happy mouth
+          ctx.strokeStyle = '#5D4037';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(tx, ty + 2, 6, 0.2 * Math.PI, 0.8 * Math.PI);
+          ctx.stroke();
+          
+          // Bread in paw
+          ctx.fillStyle = '#D7CCC8';
+          ctx.beginPath();
+          ctx.ellipse(tx + 18, ty + 12, 14, 10, 0.3, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = '#8D6E63';
+          ctx.lineWidth = 2;
+          ctx.stroke();
         }
       }
 
       for (const enemy of state.enemies) {
         const enemyY = enemy.y + Math.sin(enemy.wobble) * 2;
+        
         if (enemy.type === 0) {
-          ctx.fillStyle = '#7CB342';
+          // 🥒 Cucumber - Cute green veggie
+          const ex = enemy.x;
+          const ey = enemyY;
+          
+          // Body (cucumber shape)
+          ctx.fillStyle = '#8BC34A'; // Light green
           ctx.beginPath();
-          ctx.ellipse(enemy.x, enemyY, 20, 12, 0.3, 0, Math.PI * 2);
+          ctx.ellipse(ex, ey, 22, 14, 0.2, 0, Math.PI * 2);
           ctx.fill();
+          
+          // Darker stripes
+          ctx.strokeStyle = '#689F38';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.ellipse(ex - 8, ey, 4, 10, -0.3, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.ellipse(ex + 8, ey, 4, 10, 0.3, 0, Math.PI * 2);
+          ctx.stroke();
+          
+          // Cute face (angry but kawaii)
+          // White of eyes
           ctx.fillStyle = '#FFF';
           ctx.beginPath();
-          ctx.ellipse(enemy.x - 8, enemyY - 5, 5, 4, 0, 0, Math.PI * 2);
-          ctx.ellipse(enemy.x + 8, enemyY - 5, 5, 4, 0, 0, Math.PI * 2);
+          ctx.ellipse(ex - 6, ey - 4, 5, 5, 0, 0, Math.PI * 2);
+          ctx.ellipse(ex + 6, ey - 4, 5, 5, 0, 0, Math.PI * 2);
           ctx.fill();
+          
+          // Pupils (angry diagonal)
           ctx.fillStyle = '#000';
           ctx.beginPath();
-          ctx.ellipse(enemy.x - 8, enemyY - 5, 2, 3, 0, 0, Math.PI * 2);
-          ctx.ellipse(enemy.x + 8, enemyY - 5, 2, 3, 0, 0, Math.PI * 2);
+          ctx.arc(ex - 5, ey - 3, 2, 0, Math.PI * 2);
+          ctx.arc(ex + 7, ey - 3, 2, 0, Math.PI * 2);
           ctx.fill();
-          ctx.fillStyle = '#FFCDD2';
-          ctx.fillRect(enemy.x - 15, enemyY - 22, 30, 4);
+          
+          // Angry eyebrows
+          ctx.strokeStyle = '#689F38';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(ex - 10, ey - 10);
+          ctx.lineTo(ex - 3, ey - 8);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(ex + 10, ey - 10);
+          ctx.lineTo(ex + 3, ey - 8);
+          ctx.stroke();
+          
+          // Small mouth
+          ctx.beginPath();
+          ctx.arc(ex, ey + 4, 3, Math.PI, 0);
+          ctx.stroke();
+          
+          // Health bar
+          ctx.fillStyle = '#C8E6C9';
+          ctx.fillRect(ex - 18, ey - 24, 36, 5);
           ctx.fillStyle = '#EF5350';
-          ctx.fillRect(enemy.x - 15, enemyY - 22, 30 * (enemy.health / enemy.maxHealth), 4);
+          ctx.fillRect(ex - 18, ey - 24, 36 * (enemy.health / enemy.maxHealth), 5);
+          
         } else {
-          ctx.fillStyle = '#607D8B';
+          // 🧹 Vacuum - Cute household appliance
+          const ex = enemy.x;
+          const ey = enemyY;
+          
+          // Body (round vacuum)
+          ctx.fillStyle = '#90A4AE'; // Grey
           ctx.beginPath();
-          ctx.arc(enemy.x, enemyY, 22, 0, Math.PI * 2);
+          ctx.arc(ex, ey, 24, 0, Math.PI * 2);
           ctx.fill();
-          ctx.fillStyle = '#FFEB3B';
+          
+          // Inner circle
+          ctx.fillStyle = '#78909C';
           ctx.beginPath();
-          ctx.ellipse(enemy.x - 8, enemyY - 3, 6, 8, 0, 0, Math.PI * 2);
-          ctx.ellipse(enemy.x + 8, enemyY - 3, 6, 8, 0, 0, Math.PI * 2);
+          ctx.arc(ex, ey, 18, 0, Math.PI * 2);
           ctx.fill();
-          ctx.fillStyle = '#000';
+          
+          // Handle
+          ctx.fillStyle = '#546E7A';
           ctx.beginPath();
-          ctx.ellipse(enemy.x - 8, enemyY - 3, 3, 5, 0, 0, Math.PI * 2);
-          ctx.ellipse(enemy.x + 8, enemyY - 3, 3, 5, 0, 0, Math.PI * 2);
+          ctx.roundRect(ex - 4, ey - 32, 8, 16, 3);
           ctx.fill();
+          
+          // Handle top (grip)
+          ctx.beginPath();
+          ctx.arc(ex, ey - 34, 6, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // LED eyes (cute robot eyes)
+          ctx.fillStyle = '#00E676'; // Green LED
+          ctx.beginPath();
+          ctx.arc(ex - 8, ey - 2, 5, 0, Math.PI * 2);
+          ctx.arc(ex + 8, ey - 2, 5, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // LED shine
+          ctx.fillStyle = '#B9F6CA';
+          ctx.beginPath();
+          ctx.arc(ex - 10, ey - 4, 2, 0, Math.PI * 2);
+          ctx.arc(ex + 6, ey - 4, 2, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // Robot mouth
+          ctx.fillStyle = '#546E7A';
+          ctx.beginPath();
+          ctx.roundRect(ex - 6, ey + 6, 12, 6, 2);
+          ctx.fill();
+          
+          // Teeth
+          ctx.fillStyle = '#FFF';
+          ctx.fillRect(ex - 4, ey + 8, 3, 3);
+          ctx.fillRect(ex + 1, ey + 8, 3, 3);
+          
+          // Wheels
+          ctx.fillStyle = '#37474F';
+          ctx.beginPath();
+          ctx.arc(ex - 14, ey + 20, 5, 0, Math.PI * 2);
+          ctx.arc(ex + 14, ey + 20, 5, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // Health bar
+          ctx.fillStyle = '#C8E6C9';
+          ctx.fillRect(ex - 20, ey - 32, 40, 5);
+          ctx.fillStyle = '#EF5350';
+          ctx.fillRect(ex - 20, ey - 32, 40 * (enemy.health / enemy.maxHealth), 5);
         }
       }
 
@@ -396,7 +689,11 @@ export default function App() {
         if (dist < enemy.speed) enemy.pathIndex++;
         else { enemy.x += (dx / dist) * enemy.speed; enemy.y += (dy / dist) * enemy.speed; }
         enemy.wobble += 0.2;
-        if (enemy.pathIndex >= state.path.length) { state.enemies.splice(i, 1); setLives(prev => { const newLives = prev - 1; if (newLives <= 0) setGameState('gameover'); return newLives; }); }
+        if (enemy.pathIndex >= state.path.length) { 
+        state.enemies.splice(i, 1); 
+        state.enemiesLeaked++; // Track leaked enemies
+        setLives(prev => { const newLives = prev - 1; if (newLives <= 0) setGameState('gameover'); return newLives; }); 
+      }
       }
 
       for (const tower of state.towers) {
