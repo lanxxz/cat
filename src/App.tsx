@@ -39,17 +39,17 @@ function spawnBoxes(map: number[][]) {
 function HUD({ wave, gold, lives, score, towerCount, enemySpeedMultiplier, lang, onToggleLang }: { wave: number; gold: number; lives: number; score: number; towerCount: number; enemySpeedMultiplier: number; lang: Language; onToggleLang: () => void }) {
   const t = TEXT(lang);
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '768px', padding: '12px 20px', background: 'linear-gradient(90deg, #FFE4EC, #FFF, #FFE4EC)', borderRadius: '20px', border: '4px solid #FFB6C1', fontFamily: 'Nunito, sans-serif', fontSize: '18px', color: '#5D4037' }}>
-      <div style={{ display: 'flex', gap: '8px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', background: 'rgba(255,255,255,0.8)', borderRadius: '15px' }}><span style={{ fontSize: '20px' }}>🌊</span><span>{t.wave}</span><span style={{ color: '#FF6B9D', fontFamily: 'Fredoka One, cursive', minWidth: '40px' }}>{wave}/15</span></div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', background: 'rgba(255,255,255,0.8)', borderRadius: '15px' }}><span style={{ fontSize: '20px' }}>🪙</span><span style={{ color: '#FF6B9D', fontFamily: 'Fredoka One, cursive' }}>{gold}</span></div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', background: 'rgba(255,255,255,0.8)', borderRadius: '15px' }}><span style={{ fontSize: '20px' }}>❤️</span><span style={{ color: '#FF6B9D', fontFamily: 'Fredoka One, cursive' }}>{lives}</span></div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', background: 'rgba(255,255,255,0.8)', borderRadius: '15px' }}><span style={{ fontSize: '20px' }}>⭐</span><span style={{ color: '#FF6B9D', fontFamily: 'Fredoka One, cursive' }}>{score}</span></div>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '768px', padding: '10px 16px', background: 'linear-gradient(90deg, #FFE4EC, #FFF, #FFE4EC)', borderRadius: '16px', border: '3px solid #FFB6C1', fontFamily: 'Nunito, sans-serif', fontSize: '14px', color: '#5D4037', gap: '8px' }}>
+      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '6px 10px', background: 'rgba(255,255,255,0.8)', borderRadius: '10px', whiteSpace: 'nowrap' }}><span style={{ fontSize: '16px' }}>🌊</span><span>{t.wave}</span><span style={{ color: '#FF6B9D', fontFamily: 'Fredoka One, cursive', minWidth: '32px' }}>{wave}/15</span></div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '6px 10px', background: 'rgba(255,255,255,0.8)', borderRadius: '10px', whiteSpace: 'nowrap' }}><span style={{ fontSize: '16px' }}>🪙</span><span style={{ color: '#FF6B9D', fontFamily: 'Fredoka One, cursive' }}>{gold}</span></div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '6px 10px', background: 'rgba(255,255,255,0.8)', borderRadius: '10px', whiteSpace: 'nowrap' }}><span style={{ fontSize: '16px' }}>❤️</span><span style={{ color: '#FF6B9D', fontFamily: 'Fredoka One, cursive' }}>{lives}</span></div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '6px 10px', background: 'rgba(255,255,255,0.8)', borderRadius: '10px', whiteSpace: 'nowrap' }}><span style={{ fontSize: '16px' }}>⭐</span><span style={{ color: '#FF6B9D', fontFamily: 'Fredoka One, cursive' }}>{score}</span></div>
       </div>
-      <div style={{ display: 'flex', gap: '8px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', background: 'rgba(255,182,193,0.5)', borderRadius: '15px' }}><span style={{ fontSize: '18px' }}>🐱</span><span>{t.towerCount}:</span><span style={{ color: '#FF6B9D', fontFamily: 'Fredoka One, cursive' }}>{towerCount}</span></div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', background: 'rgba(255,152,0,0.3)', borderRadius: '15px' }}><span style={{ fontSize: '18px' }}>⚡</span><span>{t.enemySpeed}:</span><span style={{ color: '#FF9800', fontFamily: 'Fredoka One, cursive' }}>{(enemySpeedMultiplier * 100).toFixed(0)}%</span></div>
-        <button onClick={onToggleLang} style={{ padding: '8px 16px', background: '#FFB6C1', border: 'none', borderRadius: '15px', cursor: 'pointer', fontFamily: 'Fredoka One, cursive', fontSize: '14px', color: '#FFF' }}>
+      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '6px 8px', background: 'rgba(255,182,193,0.5)', borderRadius: '10px', whiteSpace: 'nowrap' }}><span style={{ fontSize: '14px' }}>🐱</span><span>{t.towerCount}</span><span style={{ color: '#FF6B9D', fontFamily: 'Fredoka One, cursive' }}>{towerCount}</span></div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '6px 8px', background: 'rgba(255,152,0,0.3)', borderRadius: '10px', whiteSpace: 'nowrap' }}><span style={{ fontSize: '14px' }}>⚡</span><span>{t.enemySpeed}</span><span style={{ color: '#FF9800', fontFamily: 'Fredoka One, cursive' }}>{(enemySpeedMultiplier * 100).toFixed(0)}%</span></div>
+        <button onClick={onToggleLang} style={{ padding: '6px 12px', background: '#FFB6C1', border: 'none', borderRadius: '10px', cursor: 'pointer', fontFamily: 'Fredoka One, cursive', fontSize: '12px', color: '#FFF', whiteSpace: 'nowrap' }}>
           {lang === 'zh' ? 'EN' : '中'}
         </button>
       </div>
@@ -182,14 +182,22 @@ export default function App() {
     const spawnEnemy = (type: number) => {
       const enemyType = ENEMY_TYPES[type];
       const startPos = gameRef.current.path[0];
+      
       // Speed increases with wave number, enemies leaked, and tower count
       const waveBonus = (wave - 1) * 0.1; // 10% faster per wave
       const leakBonus = gameRef.current.enemiesLeaked * 0.05; // 5% faster per enemy leaked
       const towerBonus = gameRef.current.towers.length * 0.02; // 2% faster per cat
-      const speedMultiplier = 1 + waveBonus + leakBonus + towerBonus;
+      
+      // Enemy type bonus: +50% for mosquito (wave 5+), +100% for rat (wave 10+)
+      let enemyTypeBonus = 0;
+      if (type === 2) enemyTypeBonus = 0.5; // Mosquito: +50%
+      if (type === 3) enemyTypeBonus = 1.0; // Rat: +100%
+      
+      const speedMultiplier = 1 + waveBonus + leakBonus + towerBonus + enemyTypeBonus;
       const finalSpeed = enemyType.speed * speedMultiplier;
       
       // Reward also increases with tower count (higher tower count = more points)
+      // But NO bonus for enemy type (mosquito/rat don't give extra points)
       const rewardMultiplier = 1 + gameRef.current.towers.length * 0.02;
       const finalReward = Math.floor(enemyType.reward * rewardMultiplier);
       
@@ -909,7 +917,11 @@ export default function App() {
   const toggleLang = useCallback(() => { setLang(prev => prev === 'zh' ? 'en' : 'zh'); }, []);
 
   // Calculate enemy speed multiplier for HUD
-  const enemySpeedMultiplier = 1 + (wave - 1) * 0.1 + gameRef.current.enemiesLeaked * 0.05 + gameRef.current.towers.length * 0.02;
+  // Base: wave bonus + leak bonus + tower bonus
+  let enemyTypeBonus = 0;
+  if (wave >= 5) enemyTypeBonus = 0.5; // Mosquito from wave 5: +50%
+  if (wave >= 10) enemyTypeBonus = 1.0; // Rat from wave 10: +100%
+  const enemySpeedMultiplier = 1 + (wave - 1) * 0.1 + gameRef.current.enemiesLeaked * 0.05 + gameRef.current.towers.length * 0.02 + enemyTypeBonus;
 
   // Get tower count
   const towerCount = gameRef.current.towers.length;
