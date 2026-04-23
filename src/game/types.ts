@@ -6,7 +6,7 @@
  */
 
 /** 游戏状态 / Game state */
-export type GameState = 'start' | 'playing' | 'gameover' | 'victory';
+export type GameState = 'start' | 'playing' | 'paused' | 'gameover' | 'victory';
 
 /** 语言类型 / Language type */
 export type Language = 'zh' | 'en';

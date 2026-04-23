@@ -25,6 +25,8 @@ export const TEXTS = {
     victorySubtitle: '🐱 金枪鱼罐头安全啦！🥫',
     playAgain: '再玩一次 🐱',
     finalScore: '最终得分',
+    pause: '暂停',
+    resume: '继续',
     enemyNames: ['黄瓜', '吸尘器', '蚊子', '老鼠'],
   },
   en: {
@@ -50,6 +52,8 @@ export const TEXTS = {
     victorySubtitle: '🐱 The Golden Tuna is safe! 🥫',
     playAgain: 'PLAY AGAIN 🐱',
     finalScore: 'Final Score',
+    pause: 'Pause',
+    resume: 'Resume',
     enemyNames: ['Cucumber', 'Vacuum', 'Mosquito', 'Rat'],
   },
 };

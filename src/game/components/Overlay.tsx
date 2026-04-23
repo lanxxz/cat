@@ -7,6 +7,15 @@
 
 import type { Language } from '../types';
 import { TEXT } from '../i18n';
+import {
+  overlayContainerStyle,
+  overlayTitleStyle,
+  overlaySubtitleStyle,
+  overlayScoreStyle,
+  instructionsBoxStyle,
+  instructionTextStyle,
+  primaryButtonStyle
+} from '../styles';
 
 // ============================================
 // Start Overlay / 开始界面
@@ -27,42 +36,16 @@ export function StartOverlay({ onStart, lang }: StartOverlayProps) {
   const t = TEXT(lang);
   
   return (
-    <div style={{ 
-      position: 'absolute', 
-      top: 0, 
-      left: 0, 
-      width: '768px', 
-      height: '512px', 
-      background: 'rgba(255, 248, 231, 0.95)', 
-      display: 'flex', 
-      flexDirection: 'column', 
-      alignItems: 'center', 
-      justifyContent: 'center', 
-      borderRadius: '14px', 
-      zIndex: 100 
-    }}>
+    <div style={overlayContainerStyle}>
       {/* 游戏标题 / Game Title */}
-      <div style={{ 
-        fontFamily: 'Fredoka One, cursive', 
-        fontSize: '56px', 
-        color: '#FF6B9D', 
-        textShadow: '4px 4px 0 #FFD5E5', 
-        marginBottom: '20px' 
-      }}>
+      <div style={overlayTitleStyle}>
         {t.startTitle}
       </div>
       
       {/* 游戏说明 / Game Instructions */}
-      <div style={{ 
-        background: 'rgba(255, 255, 255, 0.9)', 
-        padding: '20px', 
-        borderRadius: '15px', 
-        marginBottom: '30px', 
-        textAlign: 'center', 
-        maxWidth: '500px' 
-      }}>
+      <div style={instructionsBoxStyle}>
         {t.instructions.map((text, i) => (
-          <p key={i} style={{ color: '#5D4037', fontSize: '16px', margin: '8px 0' }}>
+          <p key={i} style={instructionTextStyle}>
             {text}
           </p>
         ))}
@@ -71,17 +54,7 @@ export function StartOverlay({ onStart, lang }: StartOverlayProps) {
       {/* 开始按钮 / Start Button */}
       <button 
         onClick={onStart} 
-        style={{ 
-          fontFamily: 'Fredoka One, cursive', 
-          fontSize: '28px', 
-          padding: '15px 60px', 
-          background: 'linear-gradient(180deg, #4CAF50 0%, #388E3C 100%)', 
-          color: 'white', 
-          border: '4px solid #2E7D32', 
-          borderRadius: '50px', 
-          cursor: 'pointer', 
-          boxShadow: '0 6px 0 #1B5E20' 
-        }}
+        style={primaryButtonStyle}
       >
         {t.startButton}
       </button>
@@ -112,46 +85,22 @@ export function Overlay({ title, subtitle, score, buttonText, onButtonClick, lan
   const t = TEXT(lang);
   
   return (
-    <div style={{ 
-      position: 'absolute', 
-      top: 0, 
-      left: 0, 
-      width: '768px', 
-      height: '512px', 
-      background: 'rgba(255, 248, 231, 0.95)', 
-      display: 'flex', 
-      flexDirection: 'column', 
-      alignItems: 'center', 
-      justifyContent: 'center', 
-      borderRadius: '14px', 
-      zIndex: 100 
-    }}>
+    <div style={overlayContainerStyle}>
       {/* 标题 / Title */}
-      <div style={{ 
-        fontFamily: 'Fredoka One, cursive', 
-        fontSize: '56px', 
-        color: '#FF6B9D', 
-        textShadow: '4px 4px 0 #FFD5E5', 
-        marginBottom: '20px' 
-      }}>
+      <div style={overlayTitleStyle}>
         {title}
       </div>
       
       {/* 副标题 / Subtitle */}
       {subtitle && (
-        <div style={{ fontSize: '24px', color: '#8D6E63', marginBottom: '30px' }}>
+        <div style={overlaySubtitleStyle}>
           {subtitle}
         </div>
       )}
       
       {/* 最终分数 / Final Score */}
       {score !== undefined && (
-        <div style={{ 
-          fontFamily: 'Fredoka One, cursive', 
-          fontSize: '36px', 
-          color: '#FFA000', 
-          margin: '20px 0' 
-        }}>
+        <div style={overlayScoreStyle}>
           {t.finalScore}: {score}
         </div>
       )}
@@ -159,17 +108,7 @@ export function Overlay({ title, subtitle, score, buttonText, onButtonClick, lan
       {/* 按钮 / Button */}
       <button 
         onClick={onButtonClick} 
-        style={{ 
-          fontFamily: 'Fredoka One, cursive', 
-          fontSize: '28px', 
-          padding: '15px 60px', 
-          background: 'linear-gradient(180deg, #4CAF50 0%, #388E3C 100%)', 
-          color: 'white', 
-          border: '4px solid #2E7D32', 
-          borderRadius: '50px', 
-          cursor: 'pointer', 
-          boxShadow: '0 6px 0 #1B5E20' 
-        }}
+        style={primaryButtonStyle}
       >
         {buttonText}
       </button>

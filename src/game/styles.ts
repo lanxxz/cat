@@ -165,6 +165,18 @@ export const hudSpeedValueStyle: React.CSSProperties = {
   fontFamily: 'Fredoka One, cursive'
 };
 
+export const pauseButtonStyle: React.CSSProperties = {
+  padding: '6px 12px',
+  background: '#FF9800',
+  border: 'none',
+  borderRadius: '10px',
+  cursor: 'pointer',
+  fontFamily: 'Fredoka One, cursive',
+  fontSize: '12px',
+  color: '#FFF',
+  whiteSpace: 'nowrap'
+};
+
 /**
  * ============================================
  * TOWER PANEL STYLES / 防御塔面板样式
@@ -254,4 +266,19 @@ export const instructionTextStyle: React.CSSProperties = {
   color: '#5D4037',
   fontSize: '16px',
   margin: '8px 0'
+};
+
+export const pauseOverlayStyle: React.CSSProperties = {
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  width: '768px',
+  height: '512px',
+  background: 'rgba(255, 248, 231, 0.9)',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderRadius: '14px',
+  zIndex: 100
 };

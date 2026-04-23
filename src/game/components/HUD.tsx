@@ -15,7 +15,8 @@ import {
   hudSpeedStyle,
   hudValueStyle,
   hudSpeedValueStyle,
-  langToggleStyle
+  langToggleStyle,
+  pauseButtonStyle
 } from '../styles';
 
 interface HUDProps {
@@ -27,6 +28,8 @@ interface HUDProps {
   enemySpeedMultiplier: number;
   lang: Language;
   onToggleLang: () => void;
+  onTogglePause: () => void;
+  isPaused: boolean;
 }
 
 /**
@@ -35,7 +38,7 @@ interface HUDProps {
  * Displays: Wave, Gold, Lives, Score, Tower Count, Enemy Speed, Language Toggle
  * 显示: 波次、金币、生命、分数、猫咪数量、敌人速度、语言切换
  */
-export function HUD({ wave, gold, lives, score, towerCount, enemySpeedMultiplier, lang, onToggleLang }: HUDProps) {
+export function HUD({ wave, gold, lives, score, towerCount, enemySpeedMultiplier, lang, onToggleLang, onTogglePause, isPaused }: HUDProps) {
   const t = TEXT(lang);
   
   return (
@@ -83,6 +86,11 @@ export function HUD({ wave, gold, lives, score, towerCount, enemySpeedMultiplier
           <span>{t.enemySpeed}</span>
           <span style={hudSpeedValueStyle}>{(enemySpeedMultiplier * 100).toFixed(0)}%</span>
         </div>
+        
+        {/* 暂停按钮 / Pause Button */}
+        <button onClick={onTogglePause} style={pauseButtonStyle}>
+          {isPaused ? t.resume : t.pause}
+        </button>
         
         {/* 语言切换按钮 / Language Toggle Button */}
         <button onClick={onToggleLang} style={langToggleStyle}>

@@ -147,6 +147,7 @@ export default function App() {
   const [score, setScore] = useState(0);
   const [wave, setWave] = useState(1);
   const [selectedTowerType, setSelectedTowerType] = useState(-1);
+  const [isPaused, setIsPaused] = useState(false);
   
   // 获取本地化文本 / Get localized text
   const t = TEXT(lang);
@@ -170,10 +171,12 @@ export default function App() {
   // 用于游戏循环的ref，避免频繁重建 / Refs for game loop to avoid frequent rebuilds
   const selectedTowerRef = useRef(selectedTowerType);
   const goldRef = useRef(gold);
+  const isPausedRef = useRef(isPaused);
   
   // 同步 ref 和 state / Sync ref with state
   selectedTowerRef.current = selectedTowerType;
   goldRef.current = gold;
+  isPausedRef.current = isPaused;
   
   const animationRef = useRef<number>(0);
   
@@ -242,6 +245,7 @@ export default function App() {
     setScore(0);
     setWave(1);
     setSelectedTowerType(-1);
+    setIsPaused(false);
     setGameState('playing');
     startWave(1);
   }, [startWave]);
@@ -413,7 +417,7 @@ export default function App() {
     
     // ============ Update Logic / 更新逻辑 ============
     const update = (timestamp: number) => {
-      if (gameState !== 'playing') return;
+      if (gameState !== 'playing' || isPausedRef.current) return;
       const state = gameRef.current;
       
       // 生成敌人 / Spawn enemies
@@ -596,6 +600,26 @@ export default function App() {
   const toggleLang = useCallback(() => {
     setLang(prev => prev === 'zh' ? 'en' : 'zh');
   }, []);
+
+  /**
+   * 切换暂停状态 / Toggle pause
+   */
+  const togglePause = useCallback(() => {
+    if (gameState === 'playing') {
+      setIsPaused(prev => !prev);
+    }
+  }, [gameState]);
+  
+  // ============ Keyboard Handler / 键盘处理 ============
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && gameState === 'playing') {
+        togglePause();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [gameState, togglePause]);
   
   // ============ Derived State / 派生状态 ============
   
@@ -638,7 +662,9 @@ export default function App() {
         towerCount={towerCount} 
         enemySpeedMultiplier={enemySpeedMultiplier} 
         lang={lang} 
-        onToggleLang={toggleLang} 
+        onToggleLang={toggleLang}
+        onTogglePause={togglePause}
+        isPaused={isPaused}
       />
       
       {/* 游戏画布 / Game canvas */}
@@ -683,6 +709,49 @@ export default function App() {
             onButtonClick={startGame} 
             lang={lang} 
           />
+        )}
+
+        {/* 暂停界面 / Pause screen */}
+        {gameState === 'playing' && isPaused && (
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '768px',
+            height: '512px',
+            background: 'rgba(255, 248, 231, 0.9)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: '14px',
+            zIndex: 100
+          }}>
+            <div style={{
+              fontFamily: 'Fredoka One, cursive',
+              fontSize: '48px',
+              color: '#FF9800',
+              marginBottom: '20px'
+            }}>
+              {t.pause}
+            </div>
+            <button 
+              onClick={togglePause} 
+              style={{
+                fontFamily: 'Fredoka One, cursive',
+                fontSize: '24px',
+                padding: '12px 40px',
+                background: 'linear-gradient(180deg, #4CAF50 0%, #388E3C 100%)',
+                color: 'white',
+                border: '4px solid #2E7D32',
+                borderRadius: '30px',
+                cursor: 'pointer',
+                boxShadow: '0 6px 0 #1B5E20'
+              }}
+            >
+              {t.resume}
+            </button>
+          </div>
         )}
       </div>
       
