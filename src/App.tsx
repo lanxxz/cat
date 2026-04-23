@@ -167,6 +167,14 @@ export default function App() {
     enemiesLeaked: 0
   });
   
+  // 用于游戏循环的ref，避免频繁重建 / Refs for game loop to avoid frequent rebuilds
+  const selectedTowerRef = useRef(selectedTowerType);
+  const goldRef = useRef(gold);
+  
+  // 同步 ref 和 state / Sync ref with state
+  selectedTowerRef.current = selectedTowerType;
+  goldRef.current = gold;
+  
   const animationRef = useRef<number>(0);
   
   // ============ Particle Factory / 粒子工厂 ============
@@ -551,7 +559,7 @@ export default function App() {
     const render = () => {
       const state = gameRef.current;
       
-      // 使用renderGame统一渲染 / Use renderGame for unified rendering
+      // 使用 renderGame 统一渲染 / Use renderGame for unified rendering
       renderGame(ctx, {
         map: state.map,
         path: state.path,
@@ -560,7 +568,7 @@ export default function App() {
         enemies: state.enemies,
         projectiles: state.projectiles,
         particles: state.particles
-      }, gameRef.current.hoverTile, selectedTowerType, gold);
+      }, gameRef.current.hoverTile, selectedTowerRef.current, goldRef.current);
     };
     
     // ============ Game Loop / 游戏循环 ============
@@ -574,7 +582,9 @@ export default function App() {
     return () => {
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
     };
-  }, [gameState, gold, selectedTowerType, startWave, wave]);
+    // 注意：不依赖 gold/selectedTowerType 以避免频繁重建
+    // 这些值通过 render 函数内部传递
+  }, [gameState, startWave, wave]);
   
   // ============================================
   // UI CALLBACKS / UI 回调
