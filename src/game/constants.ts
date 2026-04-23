@@ -1,0 +1,272 @@
+/**
+ * Game Constants / 游戏常量配置
+ * 
+ * Central configuration file for all game constants.
+ * 所有游戏常量的集中配置文件。
+ */
+
+import type { WaveData } from './types';
+
+/** 
+ * ============================================
+ * GRID & MAP CONFIGURATION / 网格与地图配置
+ * ============================================
+ */
+
+/** 单个格子像素大小 / Size of each tile in pixels */
+export const TILE_SIZE = 64;
+
+/** 网格宽度（格子数）/ Grid width in tiles */
+export const GRID_WIDTH = 12;
+
+/** 网格高度（格子数）/ Grid height in tiles */
+export const GRID_HEIGHT = 8;
+
+/** 
+ * ============================================
+ * GAME BALANCE / 游戏平衡
+ * ============================================
+ */
+
+/** 波次总数 / Total number of waves */
+export const TOTAL_WAVES = 15;
+
+/** 初始金币 / Starting gold */
+export const INITIAL_GOLD = 100;
+
+/** 初始生命值 / Starting lives */
+export const INITIAL_LIVES = 10;
+
+/** 玩家生命值上限 / Maximum lives player can have */
+export const MAX_LIVES = 10;
+
+/** 纸箱数量 / Number of box obstacles */
+export const BOX_COUNT = 5;
+
+/** 打破纸箱奖励金币 / Gold reward for breaking a box */
+export const BOX_GOLD_REWARD = 5;
+
+/** 打破纸箱奖励分数 / Score reward for breaking a box */
+export const BOX_SCORE_REWARD = 10;
+
+/** 敌人生成间隔（帧）/ Enemy spawn interval in frames */
+export const ENEMY_SPAWN_INTERVAL = 60;
+
+/** 
+ * ============================================
+ * SPEED MULTIPLIERS / 速度倍率
+ * ============================================
+ */
+
+/** 每波敌人速度加成 / Speed bonus per wave (+10%) */
+export const WAVE_SPEED_BONUS = 0.1;
+
+/** 每个漏掉敌人速度加成 / Speed bonus per leaked enemy (+5%) */
+export const LEAK_SPEED_BONUS = 0.05;
+
+/** 每只猫速度加成 / Speed bonus per tower (+2%) */
+export const TOWER_SPEED_BONUS = 0.02;
+
+/** 蚊子额外速度加成 (+50%) / Mosquito speed bonus */
+export const MOSQUITO_SPEED_BONUS = 0.5;
+
+/** 老鼠额外速度加成 (+100%) / Rat speed bonus */
+export const RAT_SPEED_BONUS = 1.0;
+
+/** 
+ * ============================================
+ * SCORE & REWARD / 分数与奖励
+ * ============================================
+ */
+
+/** 每只猫奖励加成 / Reward bonus per tower (+2%) */
+export const TOWER_REWARD_BONUS = 0.02;
+
+/** 速度奖励分数计算系数 / Speed bonus score multiplier */
+export const SPEED_SCORE_MULTIPLIER = 10;
+
+/** 击杀分数倍率 / Kill score multiplier */
+export const KILL_SCORE_MULTIPLIER = 10;
+
+/** 
+ * ============================================
+ * TOWER TYPES / 防御塔类型
+ * ============================================
+ */
+
+export interface TowerTypeConfig {
+  name: string;           // Tower name / 防御塔名称
+  cost: number;           // Gold cost / 金币费用
+  damage: number;         // Damage per attack / 每次攻击伤害
+  attackSpeed: number;    // Attack interval (ms) / 攻击间隔 (毫秒)
+  range: number;          // Attack range (pixels) / 攻击范围 (像素)
+  color: string;          // Primary color / 主颜色
+  projectileColor: string; // Projectile color / 投射物颜色
+  type: 'single' | 'aoe'; // Attack type / 攻击类型
+  aoeRadius?: number;     // AOE radius (for AOE towers) / AOE 半径
+}
+
+/**
+ * 防御塔配置 / Tower configurations
+ * 
+ * 0: 😸 Spitting Tabby - 快速单发攻击 / Fast single attack
+ * 1: 😺 Siamese Sniper - 远程高伤害 / Long range, high damage  
+ * 2: 😻 Orange Bread Cat - 范围AOE伤害 / Area damage
+ */
+export const TOWER_TYPES: TowerTypeConfig[] = [
+  { 
+    name: 'Spitting Tabby', 
+    cost: 50, 
+    damage: 15, 
+    attackSpeed: 500, 
+    range: 100, 
+    color: '#FFA726', 
+    projectileColor: '#FFF8E1', 
+    type: 'single' 
+  },
+  { 
+    name: 'Siamese Sniper', 
+    cost: 75, 
+    damage: 50, 
+    attackSpeed: 1500, 
+    range: 200, 
+    color: '#90A4AE', 
+    projectileColor: '#E91E63', 
+    type: 'single' 
+  },
+  { 
+    name: 'Orange Bread Cat', 
+    cost: 100, 
+    damage: 25, 
+    attackSpeed: 1000, 
+    range: 120, 
+    color: '#FF8A65', 
+    projectileColor: '#D7CCC8', 
+    type: 'aoe', 
+    aoeRadius: 60 
+  }
+];
+
+/** 
+ * ============================================
+ * ENEMY TYPES / 敌人类型
+ * ============================================
+ */
+
+export interface EnemyTypeConfig {
+  name: string;      // Enemy name / 敌人名称
+  health: number;    // Health points / 生命值
+  speed: number;     // Base speed / 基础速度
+  reward: number;    // Gold reward / 金币奖励
+  color: string;     // Primary color / 主颜色
+  emoji: string;     // Emoji representation / Emoji 表示
+}
+
+/**
+ * 敌人配置 / Enemy configurations
+ * 
+ * 0: 🥒 Cucumber - 黄瓜 / 快速低血量
+ * 1: 🧹 Vacuum - 吸尘器 / 慢速高血量
+ * 2: 🦟 Mosquito - 蚊子 / 快速低血量 (wave 5+)
+ * 3: 🐀 Rat - 老鼠 / 中速中血量 (wave 10+)
+ */
+export const ENEMY_TYPES: EnemyTypeConfig[] = [
+  { name: 'Cucumber', health: 30, speed: 1, reward: 10, color: '#7CB342', emoji: '🥒' },
+  { name: 'Vacuum', health: 100, speed: 0.5, reward: 25, color: '#607D8B', emoji: '🧹' },
+  { name: 'Mosquito', health: 20, speed: 1.5, reward: 15, color: '#37474F', emoji: '🦟' },
+  { name: 'Rat', health: 60, speed: 0.8, reward: 20, color: '#8D6E63', emoji: '🐀' }
+];
+
+/** 
+ * ============================================
+ * PATH CONFIGURATION / 路径配置
+ * ============================================
+ */
+
+/**
+ * 敌人路径坐标（网格坐标）/ Enemy path coordinates (grid coordinates)
+ * 
+ * 路径从左侧进入，蜿蜒穿过地图，从右侧离开
+ * Path enters from left, winds through map, exits on right
+ */
+export const PATH_COORDS = [
+  { x: 0, y: 3 }, { x: 1, y: 3 }, { x: 2, y: 3 }, { x: 3, y: 3 },
+  { x: 3, y: 2 }, { x: 3, y: 1 }, { x: 3, y: 0 },
+  { x: 4, y: 0 }, { x: 5, y: 0 }, { x: 6, y: 0 }, { x: 7, y: 0 },
+  { x: 7, y: 1 }, { x: 7, y: 2 }, { x: 7, y: 3 }, { x: 7, y: 4 },
+  { x: 7, y: 5 }, { x: 7, y: 6 }, { x: 7, y: 7 },
+  { x: 8, y: 7 }, { x: 9, y: 7 }, { x: 10, y: 7 }, { x: 11, y: 7 }
+];
+
+/** 
+ * ============================================
+ * WAVE CONFIGURATION / 波次配置
+ * ============================================
+ */
+
+/** 基础波次数据（未缩放）/ Base wave definitions (unscaled) */
+export const BASE_WAVES: WaveData[][] = [
+  [{ type: 0, count: 3 }],                                          // Wave 1: 3 Cucumbers
+  [{ type: 0, count: 5 }],                                          // Wave 2: 5 Cucumbers
+  [{ type: 0, count: 6 }, { type: 1, count: 1 }],                   // Wave 3: 6 Cucumbers + 1 Vacuum
+  [{ type: 0, count: 5 }, { type: 1, count: 2 }],                    // Wave 4: 5 Cucumbers + 2 Vacuums
+  [{ type: 0, count: 6 }, { type: 1, count: 2 }, { type: 2, count: 2 }], // Wave 5: + Mosquitos
+  [{ type: 0, count: 5 }, { type: 1, count: 3 }, { type: 2, count: 3 }],  // Wave 6
+  [{ type: 0, count: 8 }, { type: 1, count: 3 }, { type: 2, count: 4 }],  // Wave 7
+  [{ type: 1, count: 6 }, { type: 2, count: 4 }],                    // Wave 8
+  [{ type: 0, count: 8 }, { type: 1, count: 5 }, { type: 2, count: 5 }],  // Wave 9
+  [{ type: 0, count: 6 }, { type: 1, count: 4 }, { type: 2, count: 4 }, { type: 3, count: 2 }], // Wave 10: + Rats
+  [{ type: 0, count: 8 }, { type: 1, count: 5 }, { type: 2, count: 5 }, { type: 3, count: 3 }],  // Wave 11
+  [{ type: 1, count: 8 }, { type: 2, count: 6 }, { type: 3, count: 4 }],   // Wave 12
+  [{ type: 0, count: 10 }, { type: 1, count: 6 }, { type: 2, count: 6 }, { type: 3, count: 4 }],  // Wave 13
+  [{ type: 0, count: 12 }, { type: 1, count: 8 }, { type: 2, count: 8 }, { type: 3, count: 5 }],  // Wave 14
+  [{ type: 0, count: 15 }, { type: 1, count: 10 }, { type: 2, count: 10 }, { type: 3, count: 6 }] // Wave 15: Final
+];
+
+/**
+ * 每波敌人数量缩放系数 / Enemy count scaling per wave
+ * 每波增加 15% 敌人数量 / +15% enemies each wave
+ */
+export const WAVE_SCALE_FACTOR = 0.15;
+
+/**
+ * 生成缩放后的波次数据 / Generate scaled wave data
+ * @param waveNum - 波次号 (1-15) / Wave number (1-15)
+ * @returns 缩放后的波次数据 / Scaled wave data
+ */
+export function getWaveData(waveNum: number): WaveData[] {
+  const baseWave = BASE_WAVES[waveNum - 1];
+  const scale = 1 + (waveNum - 1) * WAVE_SCALE_FACTOR;
+  
+  return baseWave.map(group => ({
+    type: group.type,
+    count: Math.ceil(group.count * scale)
+  }));
+}
+
+/** 预生成的 15 波数据 / Pre-generated 15 waves */
+export const WAVES: WaveData[][] = Array.from({ length: TOTAL_WAVES }, (_, i) => getWaveData(i + 1));
+
+/** 
+ * ============================================
+ * TILE TYPES / 格子类型
+ * ============================================
+ */
+
+export const TILE = {
+  EMPTY: 0,       // 可建造 / Buildable
+  PATH: 1,        // 敌人路径 / Enemy path
+  BOX: 2,         // 纸箱障碍 / Box obstacle
+  BASE: 3,        // 终点/金枪鱼罐头 / Base/Tuna can
+  TOWER: 4        // 已建防御塔 / Built tower
+} as const;
+
+/**
+ * 格子类型 / Tile types
+ * 0 = 空地（可建造）
+ * 1 = 路径
+ * 2 = 纸箱
+ * 3 = 终点基地
+ * 4 = 防御塔
+ */
+export type TileType = typeof TILE.EMPTY | typeof TILE.PATH | typeof TILE.BOX | typeof TILE.BASE | typeof TILE.TOWER;
