@@ -52,6 +52,27 @@ export const BOX_SCORE_REWARD = 10;
 /** 敌人生成间隔（帧）/ Enemy spawn interval in frames */
 export const ENEMY_SPAWN_INTERVAL = 60;
 
+/** 粒子效果数量 - 打破纸箱 / Particle count - breaking box */
+export const PARTICLE_COUNT_BREAK_BOX = 10;
+
+/** 粒子效果数量 - 放置防御塔 / Particle count - placing tower */
+export const PARTICLE_COUNT_PLACE_TOWER = 15;
+
+/** 粒子效果数量 - 击杀敌人 / Particle count - killing enemy */
+export const PARTICLE_COUNT_KILL_ENEMY = 15;
+
+/** 敌人摆动动画速度 / Enemy wobble animation speed */
+export const ENEMY_WOBBLE_SPEED = 0.2;
+
+/** 投射物生命周期（帧）/ Projectile life in frames */
+export const PROJECTILE_LIFE = 60;
+
+/** 粒子重力 / Particle gravity */
+export const PARTICLE_GRAVITY = 0.2;
+
+/** 波次间隔延迟（毫秒）/ Wave transition delay in ms */
+export const WAVE_TRANSITION_DELAY = 1000;
+
 /** 
  * ============================================
  * SPEED MULTIPLIERS / 速度倍率

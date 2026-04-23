@@ -18,7 +18,9 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 
 // ============ Game Configuration / 游戏配置 ============
-import { 
+import {
+  BOX_SCORE_REWARD,
+  BOX_GOLD_REWARD,
   TOWER_TYPES, 
   ENEMY_TYPES, 
   TILE, 
@@ -40,8 +42,13 @@ import {
   SPEED_SCORE_MULTIPLIER,
   KILL_SCORE_MULTIPLIER,
   ENEMY_SPAWN_INTERVAL,
-  BOX_SCORE_REWARD,
-  BOX_GOLD_REWARD
+  PARTICLE_COUNT_BREAK_BOX,
+  PARTICLE_COUNT_PLACE_TOWER,
+  PARTICLE_COUNT_KILL_ENEMY,
+  ENEMY_WOBBLE_SPEED,
+  PROJECTILE_LIFE,
+  PARTICLE_GRAVITY,
+  WAVE_TRANSITION_DELAY
 } from './game/constants';
 
 // ============ Types / 类型 ============
@@ -257,10 +264,10 @@ export default function App() {
       state.boxes.splice(boxIdx, 1);
       state.map[tileY][tileX] = TILE.EMPTY;
       setGold(prev => prev + BOX_GOLD_REWARD); 
-      setScore(prev => prev + BOX_SCORE_REWARD);  
+      setScore(prev => prev + BOX_SCORE_REWARD);   
       
       // 生成粒子效果 / Spawn particles
-      for (let p = 0; p < 10; p++) {
+      for (let p = 0; p < PARTICLE_COUNT_BREAK_BOX; p++) {
         state.particles.push(createParticle(
           tileX * TILE_SIZE + TILE_SIZE / 2,
           tileY * TILE_SIZE + TILE_SIZE / 2,
@@ -291,7 +298,7 @@ export default function App() {
         state.map[tileY][tileX] = TILE.TOWER;
         
         // 生成放置粒子 / Spawn placement particles
-        for (let p = 0; p < 15; p++) {
+        for (let p = 0; p < PARTICLE_COUNT_PLACE_TOWER; p++) {
           state.particles.push(createParticle(
             tileX * TILE_SIZE + TILE_SIZE / 2,
             tileY * TILE_SIZE + TILE_SIZE / 2,
@@ -387,7 +394,7 @@ export default function App() {
           setScore(prev => prev + earnedScore);
           
           // 生成击杀粒子 / Spawn kill particles
-          for (let p = 0; p < 15; p++) {
+          for (let p = 0; p < PARTICLE_COUNT_KILL_ENEMY; p++) {
             state.particles.push(createParticle(enemy.x, enemy.y, '#7CB342'));
           }
           
@@ -426,7 +433,7 @@ export default function App() {
           enemy.y += (dy / dist) * enemy.speed;
         }
         
-        enemy.wobble += 0.2;
+        enemy.wobble += ENEMY_WOBBLE_SPEED;
         
         // 敌人到达终点 / Enemy reached base
         if (enemy.pathIndex >= state.path.length) {
@@ -469,7 +476,7 @@ export default function App() {
             damage: towerType.damage,
             type: towerType.type as 'single' | 'aoe',
             aoeRadius: towerType.aoeRadius,
-            life: 60
+            life: PROJECTILE_LIFE
           });
         }
       }
@@ -515,7 +522,7 @@ export default function App() {
         const p = state.particles[i];
         p.x += p.vx;
         p.y += p.vy;
-        p.vy += 0.2; // 重力 / Gravity
+        p.vy += PARTICLE_GRAVITY; // 重力 / Gravity
         p.life--;
         p.alpha = p.life / 30;
         if (p.life <= 0) state.particles.splice(i, 1);
@@ -536,7 +543,7 @@ export default function App() {
               return newWave;
             });
           }
-        }, 1000);
+        }, WAVE_TRANSITION_DELAY);
       }
     };
     
