@@ -13,14 +13,22 @@ import { ENEMY_TYPES, TOWER_TYPES, WAVE_SPEED_BONUS, LEAK_SPEED_BONUS, TOWER_SPE
  * @param state - 游戏状态
  * @param type - 敌人类型
  * @param currentWave - 当前波次
- * @param pathId - 路径ID（随机选择）
+ * @param pathId - 路径ID（如果有指定）
  */
 export function spawnEnemy(state: GameStateRef, type: number, currentWave: number, pathId?: number): Enemy {
   const enemyType = ENEMY_TYPES[type];
   
-  // 随机选择路径（如果没有指定）
-  const chosenPathId = pathId ?? Math.floor(Math.random() * state.paths.length);
-  const path = state.paths[chosenPathId];
+  // 如果指定了路径ID，使用该路径；否则从已解锁路径中随机选择
+  let chosenPathId: number;
+  if (pathId !== undefined) {
+    chosenPathId = pathId;
+  } else {
+    // 从已解锁路径中随机选择
+    const unlocked = state.unlockedPaths || [2];  // 默认只有Easy路径
+    chosenPathId = unlocked[Math.floor(Math.random() * unlocked.length)];
+  }
+  
+  const path = state.paths[chosenPathId] || state.paths[0];
   const startPos = path[0];
   
   const waveBonus = (currentWave - 1) * WAVE_SPEED_BONUS;

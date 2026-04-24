@@ -33,6 +33,12 @@ import GameOverlays from './game/components/GameOverlays';
 // 样式
 import { containerStyle, titleStyle, canvasWrapperStyle, canvasStyle, towerPanelStyle, towerButtonStyle } from './game/styles';
 
+// 路径解锁配置
+const PATH_UNLOCK_WAVES: Record<number, { id: number; name: string; color: string }> = {
+  4: { id: 1, name: 'Normal', color: '#80D8FF' },   // 第4波解锁 Normal
+  6: { id: 0, name: 'Hard', color: '#FF8A80' }      // 第6波解锁 Hard
+};
+
 export default function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [gameState, setGameState] = useState<GameState>('start');
@@ -43,6 +49,7 @@ export default function App() {
   const [wave, setWave] = useState(1);
   const [selectedTowerType, setSelectedTowerType] = useState(-1);
   const [isPaused, setIsPaused] = useState(false);
+  const [pathUnlockNotification, setPathUnlockNotification] = useState<{ name: string; color: string } | null>(null);
   
   const t = TEXT(lang);
   const gameRef = useRef<GameStateRef>(initGameState([], [], [], [], []));
@@ -53,11 +60,28 @@ export default function App() {
   selectedTowerRef.current = selectedTowerType;
   goldRef.current = gold;
   
+  // 检查路径解锁提示
+  useEffect(() => {
+    const notifications = gameRef.current?.pathUnlockNotifications;
+    if (notifications && notifications.length > 0) {
+      const notif = notifications.shift();
+      if (notif) {
+        const config = Object.values(PATH_UNLOCK_WAVES).find(p => p.id === notif.pathId);
+        if (config) {
+          setPathUnlockNotification({ name: config.name, color: config.color });
+          setTimeout(() => setPathUnlockNotification(null), 3000);
+        }
+      }
+    }
+  }, [wave]);
+  
   // 回调
   const startWave = useCallback((waveNum: number) => {
     gameRef.current.enemiesToSpawn = createWave(waveNum);
     gameRef.current.enemySpawnTimer = 0;
     gameRef.current.waveInProgress = true;
+    // 清除待处理的路径解锁通知，避免重新开始时误触发
+    gameRef.current.pathUnlockNotifications = [];
   }, []);
   
   const startGame = useCallback(() => {
@@ -67,8 +91,12 @@ export default function App() {
     shakeRef.current = createShakeState();
     setGold(INITIAL_GOLD); setLives(INITIAL_LIVES); setScore(0); setWave(1);
     setSelectedTowerType(-1); setIsPaused(false); setGameState('playing');
-    startWave(1);
-  }, [startWave]);
+    setPathUnlockNotification(null);  // 清除之前的路径解锁提示
+    // 开始第1波
+    gameRef.current.enemiesToSpawn = createWave(1);
+    gameRef.current.enemySpawnTimer = 0;
+    gameRef.current.waveInProgress = true;
+  }, []);
   
   const handleCanvasClick = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     if (gameState !== 'playing') return;
@@ -137,7 +165,27 @@ export default function App() {
       
       if (state.waveInProgress && state.enemiesToSpawn.length === 0 && state.enemies.length === 0) {
         state.waveInProgress = false;
-        setTimeout(() => { if (gameState === 'playing') setWave(n => { const w = n + 1; if (w > TOTAL_WAVES) setGameState('victory'); else startWave(w); return w; }); }, WAVE_TRANSITION_DELAY);
+        
+        // 检查路径解锁
+        const nextWave = wave + 1;
+        if (PATH_UNLOCK_WAVES[nextWave]) {
+          const unlockConfig = PATH_UNLOCK_WAVES[nextWave];
+          if (!state.unlockedPaths.includes(unlockConfig.id)) {
+            state.unlockedPaths.push(unlockConfig.id);
+            state.pathUnlockNotifications.push({ pathId: unlockConfig.id, wave: nextWave });
+          }
+        }
+        
+        setTimeout(() => { 
+          if (gameState === 'playing') {
+            setWave(n => { 
+              const w = n + 1; 
+              if (w > TOTAL_WAVES) setGameState('victory'); 
+              else startWave(w); 
+              return w; 
+            }); 
+          }
+        }, WAVE_TRANSITION_DELAY);
       }
     };
     
@@ -162,6 +210,27 @@ export default function App() {
       <HUD wave={wave} gold={gold} lives={lives} score={score} towerCount={gameRef.current.towers.length} enemySpeedMultiplier={enemySpeedMultiplier} lang={lang} onToggleLang={toggleLang} onTogglePause={togglePause} isPaused={isPaused} />
       <div style={canvasWrapperStyle}>
         <canvas ref={canvasRef} width={GRID_WIDTH * TILE_SIZE} height={GRID_HEIGHT * TILE_SIZE} onClick={handleCanvasClick} onMouseMove={handleCanvasHover} style={canvasStyle} />
+        {/* 路径解锁提示 */}
+        {pathUnlockNotification && (
+          <div style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            backgroundColor: pathUnlockNotification.color,
+            color: 'white',
+            padding: '15px 30px',
+            borderRadius: '12px',
+            fontSize: '24px',
+            fontWeight: 'bold',
+            fontFamily: 'Fredoka One, cursive',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+            animation: 'bounce 0.5s ease-out',
+            zIndex: 100
+          }}>
+            🚀 {pathUnlockNotification.name} 路线解锁！
+          </div>
+        )}
         {(gameState === 'start' || gameState === 'gameover' || gameState === 'victory') && <GameOverlays state={gameState} lang={lang} score={score} onStart={startGame} onResume={togglePause} />}
         {gameState === 'playing' && isPaused && <GameOverlays state="paused" lang={lang} score={0} onStart={startGame} onResume={togglePause} />}
       </div>

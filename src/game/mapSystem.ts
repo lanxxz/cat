@@ -94,6 +94,8 @@ export function initGameState(map: number[][], path: Position[], paths: Position
     path,
     paths,
     pathIds,
+    unlockedPaths: [2],  // 初始只解锁 Easy 路径 (id=2)
+    pathUnlockNotifications: [],
     towers: [],
     enemies: [],
     projectiles: [],

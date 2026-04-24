@@ -190,8 +190,10 @@ export interface WaveData {
 export interface GameStateRef {
   map: number[][];
   path: Position[];
-  paths: Position[][];       // 多路径 / Multiple paths
-  pathIds: number[];         // 路径ID列表 / Path IDs
+  paths: Position[][];
+  pathIds: number[];
+  unlockedPaths: number[];     // 已解锁的路径ID / Unlocked path IDs
+  pathUnlockNotifications: { pathId: number; wave: number }[];  // 待显示的路径解锁提示
   towers: Tower[];
   enemies: Enemy[];
   projectiles: Projectile[];
