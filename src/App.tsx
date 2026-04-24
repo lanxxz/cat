@@ -8,13 +8,17 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 
 // 配置
-import { TILE_SIZE, GRID_WIDTH, GRID_HEIGHT, TOWER_TYPES, TOTAL_WAVES, INITIAL_GOLD, INITIAL_LIVES, ENEMY_SPAWN_INTERVAL, WAVE_TRANSITION_DELAY, WAVE_SPEED_BONUS, LEAK_SPEED_BONUS, TOWER_SPEED_BONUS, MOSQUITO_SPEED_BONUS, RAT_SPEED_BONUS, BOX_GOLD_REWARD, BOX_SCORE_REWARD } from './game/constants';
+import { TILE_SIZE, GRID_WIDTH, GRID_HEIGHT, TOWER_TYPES, INITIAL_GOLD, INITIAL_LIVES, WAVE_SPEED_BONUS, LEAK_SPEED_BONUS, TOWER_SPEED_BONUS, MOSQUITO_SPEED_BONUS, RAT_SPEED_BONUS, BOX_GOLD_REWARD, BOX_SCORE_REWARD, TOTAL_WAVES, ENEMY_SPAWN_INTERVAL, WAVE_TRANSITION_DELAY } from './game/constants';
 
 // 系统
 import { buildInitialMap, spawnBoxes, initGameState } from './game/mapSystem';
 import { startWave as createWave } from './game/waveSystem';
 import { spawnEnemy, moveEnemies, towerAttacks, updateProjectiles, calcKillReward } from './game/combatSystem';
-import { spawnBreakBoxParticles, spawnPlaceTowerParticles, spawnKillEnemyParticles, updateParticles, createShakeState, triggerShake, applyShake } from './game/gameEngine';
+import { spawnBreakBoxParticles, spawnPlaceTowerParticles, spawnKillEnemyParticles, updateParticles, createShakeState, applyShake, triggerShake, ShakeState } from './game/gameEngine';
+import { useKeyboardHandler } from './game/keyboard';
+
+// 渲染
+import { renderGame } from './game/renderer';
 
 // 类型
 import type { GameState, Language, Enemy, GameStateRef } from './game/types';
@@ -25,9 +29,6 @@ import { TEXT } from './game/i18n';
 // UI
 import HUD from './game/components/HUD';
 import GameOverlays from './game/components/GameOverlays';
-
-// 渲染
-import { renderGame } from './game/renderer';
 
 // 样式
 import { containerStyle, titleStyle, canvasWrapperStyle, canvasStyle, towerPanelStyle, towerButtonStyle } from './game/styles';
@@ -45,15 +46,12 @@ export default function App() {
   
   const t = TEXT(lang);
   const gameRef = useRef<GameStateRef>(initGameState([], [], []));
-  const shakeRef = useRef(createShakeState());
+  const shakeRef = useRef<ShakeState>(createShakeState());
   const selectedTowerRef = useRef(selectedTowerType);
   const goldRef = useRef(gold);
-  const isPausedRef = useRef(isPaused);
-  const animationRef = useRef(0);
   
   selectedTowerRef.current = selectedTowerType;
   goldRef.current = gold;
-  isPausedRef.current = isPaused;
   
   // 回调
   const startWave = useCallback((waveNum: number) => {
@@ -105,12 +103,14 @@ export default function App() {
   const toggleLang = useCallback(() => setLang(p => p === 'zh' ? 'en' : 'zh'), []);
   const togglePause = useCallback(() => gameState === 'playing' && setIsPaused(p => !p), [gameState]);
   
-  // 游戏循环
+  // 游戏循环 - 内联简化
   useEffect(() => {
-    const canvas = canvasRef.current; if (!canvas) return;
-    const ctx = canvas.getContext('2d'); if (!ctx) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
     
-    const damageEnemy = (enemy: Enemy) => {
+    const onDamageEnemy = (enemy: Enemy) => {
       const { gold: g, score: s } = calcKillReward(enemy);
       setGold(o => o + g); setScore(o => o + s);
       spawnKillEnemyParticles(gameRef.current, enemy);
@@ -119,7 +119,7 @@ export default function App() {
     };
     
     const update = (timestamp: number) => {
-      if (gameState !== 'playing' || isPausedRef.current) return;
+      if (gameState !== 'playing' || isPaused) return;
       const state = gameRef.current;
       
       if (state.enemiesToSpawn.length > 0) {
@@ -132,7 +132,7 @@ export default function App() {
       
       moveEnemies(state, () => { triggerShake(shakeRef.current, 10, 15); setLives(l => { const n = l - 1; if (n <= 0) setGameState('gameover'); return n; }); });
       towerAttacks(state, timestamp);
-      updateProjectiles(state, damageEnemy);
+      updateProjectiles(state, onDamageEnemy);
       updateParticles(state);
       
       if (state.waveInProgress && state.enemiesToSpawn.length === 0 && state.enemies.length === 0) {
@@ -144,23 +144,18 @@ export default function App() {
     const render = () => {
       const shake = applyShake(shakeRef.current);
       ctx.setTransform(1, 0, 0, 1, shake.offsetX, shake.offsetY);
-      renderGame(ctx, { ...gameRef.current }, gameRef.current.hoverTile, selectedTowerRef.current, goldRef.current);
+      renderGame(ctx, gameRef.current, gameRef.current.hoverTile, selectedTowerRef.current, goldRef.current);
     };
     
-    animationRef.current = requestAnimationFrame(function loop(t) { update(t); render(); animationRef.current = requestAnimationFrame(loop); });
-    return () => cancelAnimationFrame(animationRef.current);
-  }, [gameState, startWave, wave]);
+    let animationId = requestAnimationFrame(function loop(t) { update(t); render(); animationId = requestAnimationFrame(loop); });
+    return () => cancelAnimationFrame(animationId);
+  }, [gameState, wave, startWave, isPaused]);
   
   // 键盘
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape' && gameState === 'playing') togglePause(); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [gameState, togglePause]);
+  useKeyboardHandler(gameState, togglePause);
   
   const enemySpeedMultiplier = 1 + (wave - 1) * WAVE_SPEED_BONUS + gameRef.current.enemiesLeaked * LEAK_SPEED_BONUS + gameRef.current.towers.length * TOWER_SPEED_BONUS + (wave >= 5 ? MOSQUITO_SPEED_BONUS : 0) + (wave >= 10 ? RAT_SPEED_BONUS : 0);
   
-  // 渲染 - 使用原始样式
   return (
     <div style={containerStyle}>
       <h1 style={titleStyle}>{t.title}</h1>
