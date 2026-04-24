@@ -180,6 +180,27 @@ export default function App() {
   
   const animationRef = useRef<number>(0);
   
+  // ============ Screen Shake / 屏幕震动 ============
+  const shakeRef = useRef({ intensity: 0, duration: 0 });
+  
+  // 触发屏幕震动 / Trigger screen shake
+  const triggerShake = (intensity: number, duration: number) => {
+    shakeRef.current = { intensity, duration };
+  };
+  
+  // 更新并应用屏幕震动 / Update and apply screen shake
+  const applyShake = (): { offsetX: number; offsetY: number } => {
+    if (shakeRef.current.duration > 0) {
+      const shake = shakeRef.current;
+      const offsetX = (Math.random() - 0.5) * shake.intensity;
+      const offsetY = (Math.random() - 0.5) * shake.intensity;
+      shake.duration--;
+      if (shake.duration <= 0) shake.intensity = 0;
+      return { offsetX, offsetY };
+    }
+    return { offsetX: 0, offsetY: 0 };
+  };
+  
   // ============ Particle Factory / 粒子工厂 ============
   const createParticle = (x: number, y: number, color: string): Particle => ({
     x, y,
@@ -238,6 +259,9 @@ export default function App() {
       boxes, enemiesToSpawn: [], enemySpawnTimer: 0, waveInProgress: false,
       hoverTile: { x: -1, y: -1 }, enemiesLeaked: 0
     };
+    
+    // 重置屏幕震动 / Reset screen shake
+    shakeRef.current = { intensity: 0, duration: 0 };
     
     // 重置UI状态 / Reset UI state
     setGold(INITIAL_GOLD);
@@ -451,6 +475,7 @@ export default function App() {
         if (enemy.pathIndex >= state.path.length) {
           state.enemies.splice(i, 1);
           state.enemiesLeaked++; // 记录漏掉的敌人
+          triggerShake(10, 15); // 屏幕震动
           setLives(prev => {
             const newLives = prev - 1;
             if (newLives <= 0) setGameState('gameover');
@@ -562,6 +587,12 @@ export default function App() {
     // ============ Render Loop / 渲染循环 ============
     const render = () => {
       const state = gameRef.current;
+      
+      // 应用屏幕震动 / Apply screen shake
+      const shake = applyShake();
+      
+      // 先设置震动偏移，再绘制 / Set shake offset first, then draw
+      ctx.setTransform(1, 0, 0, 1, shake.offsetX, shake.offsetY);
       
       // 使用 renderGame 统一渲染 / Use renderGame for unified rendering
       renderGame(ctx, {

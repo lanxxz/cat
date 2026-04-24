@@ -193,9 +193,9 @@ export interface EnemyTypeConfig {
  */
 export const ENEMY_TYPES: EnemyTypeConfig[] = [
   { name: 'Cucumber', health: 30, speed: 1, reward: 10, color: '#7CB342', emoji: '🥒' },
-  { name: 'Vacuum', health: 100, speed: 0.5, reward: 25, color: '#607D8B', emoji: '🧹' },
-  { name: 'Mosquito', health: 20, speed: 1.5, reward: 15, color: '#37474F', emoji: '🦟' },
-  { name: 'Rat', health: 60, speed: 0.8, reward: 20, color: '#8D6E63', emoji: '🐀' }
+  { name: 'Vacuum', health: 180, speed: 0.8, reward: 25, color: '#607D8B', emoji: '🧹' },
+  { name: 'Mosquito', health: 30, speed: 3, reward: 15, color: '#37474F', emoji: '🦟' },
+  { name: 'Rat', health: 200, speed: 1.5, reward: 20, color: '#8D6E63', emoji: '🐀' }
 ];
 
 /** 
