@@ -204,11 +204,14 @@ export const ENEMY_TYPES: EnemyTypeConfig[] = [
  * ============================================
  */
 
+import type { Path, Position } from './types';
+
 /**
  * 敌人路径坐标（网格坐标）/ Enemy path coordinates (grid coordinates)
  * 
  * 路径从左侧进入，蜿蜒穿过地图，从右侧离开
  * Path enters from left, winds through map, exits on right
+ * @deprecated 使用 PATHS 多路径系统 / Use PATHS multi-path system
  */
 export const PATH_COORDS = [
   { x: 0, y: 3 }, { x: 1, y: 3 }, { x: 2, y: 3 }, { x: 3, y: 3 },
@@ -218,6 +221,123 @@ export const PATH_COORDS = [
   { x: 7, y: 5 }, { x: 7, y: 6 }, { x: 7, y: 7 },
   { x: 8, y: 7 }, { x: 9, y: 7 }, { x: 10, y: 7 }, { x: 11, y: 7 }
 ];
+
+/**
+ * 多路径系统配置 / Multi-path system configuration
+ * 
+ * 支持多条路径、分支、循环
+ * - Path 0 (顶部): 从上方进入，短路径，高难度
+ * - Path 1 (中部): 从左侧进入，中等难度  
+ * - Path 2 (底部): 从下方进入，长路径，低难度
+ */
+export const PATHS: Path[] = [
+  // Path 0: 顶部路径 - 短而快，高难度
+  {
+    id: 0,
+    name: 'Top Road',
+    difficulty: 3,
+    color: '#FF8A80',  // 红色 - 高难度
+    enemyTypes: [0, 1, 2, 3],  // 所有敌人类型
+    nodes: [
+      { x: 5 * TILE_SIZE + TILE_SIZE / 2, y: 0 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 5 * TILE_SIZE + TILE_SIZE / 2, y: 1 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 5 * TILE_SIZE + TILE_SIZE / 2, y: 2 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 6 * TILE_SIZE + TILE_SIZE / 2, y: 2 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 7 * TILE_SIZE + TILE_SIZE / 2, y: 2 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 8 * TILE_SIZE + TILE_SIZE / 2, y: 2 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 9 * TILE_SIZE + TILE_SIZE / 2, y: 2 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 10 * TILE_SIZE + TILE_SIZE / 2, y: 2 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 10 * TILE_SIZE + TILE_SIZE / 2, y: 3 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 10 * TILE_SIZE + TILE_SIZE / 2, y: 4 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 10 * TILE_SIZE + TILE_SIZE / 2, y: 5 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 11 * TILE_SIZE + TILE_SIZE / 2, y: 5 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 11 * TILE_SIZE + TILE_SIZE / 2, y: 6 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 11 * TILE_SIZE + TILE_SIZE / 2, y: 7 * TILE_SIZE + TILE_SIZE / 2 }
+    ]
+  },
+  // Path 1: 中部路径 - 原始路径，中等难度
+  {
+    id: 1,
+    name: 'Middle Road',
+    difficulty: 2,
+    color: '#80D8FF',  // 蓝色 - 中等难度
+    enemyTypes: [0, 1, 2, 3],
+    nodes: [
+      { x: 0 * TILE_SIZE + TILE_SIZE / 2, y: 3 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 1 * TILE_SIZE + TILE_SIZE / 2, y: 3 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 2 * TILE_SIZE + TILE_SIZE / 2, y: 3 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 3 * TILE_SIZE + TILE_SIZE / 2, y: 3 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 3 * TILE_SIZE + TILE_SIZE / 2, y: 2 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 3 * TILE_SIZE + TILE_SIZE / 2, y: 1 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 3 * TILE_SIZE + TILE_SIZE / 2, y: 0 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 4 * TILE_SIZE + TILE_SIZE / 2, y: 0 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 5 * TILE_SIZE + TILE_SIZE / 2, y: 0 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 6 * TILE_SIZE + TILE_SIZE / 2, y: 0 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 7 * TILE_SIZE + TILE_SIZE / 2, y: 0 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 7 * TILE_SIZE + TILE_SIZE / 2, y: 1 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 7 * TILE_SIZE + TILE_SIZE / 2, y: 2 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 7 * TILE_SIZE + TILE_SIZE / 2, y: 3 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 7 * TILE_SIZE + TILE_SIZE / 2, y: 4 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 7 * TILE_SIZE + TILE_SIZE / 2, y: 5 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 7 * TILE_SIZE + TILE_SIZE / 2, y: 6 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 7 * TILE_SIZE + TILE_SIZE / 2, y: 7 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 8 * TILE_SIZE + TILE_SIZE / 2, y: 7 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 9 * TILE_SIZE + TILE_SIZE / 2, y: 7 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 10 * TILE_SIZE + TILE_SIZE / 2, y: 7 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 11 * TILE_SIZE + TILE_SIZE / 2, y: 7 * TILE_SIZE + TILE_SIZE / 2 }
+    ]
+  },
+  // Path 2: 底部路径 - 长路径，低难度
+  {
+    id: 2,
+    name: 'Bottom Road',
+    difficulty: 1,
+    color: '#B9F6CA',  // 绿色 - 低难度
+    enemyTypes: [0, 1, 2, 3],
+    nodes: [
+      { x: 0 * TILE_SIZE + TILE_SIZE / 2, y: 7 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 1 * TILE_SIZE + TILE_SIZE / 2, y: 7 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 2 * TILE_SIZE + TILE_SIZE / 2, y: 7 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 2 * TILE_SIZE + TILE_SIZE / 2, y: 6 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 2 * TILE_SIZE + TILE_SIZE / 2, y: 5 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 2 * TILE_SIZE + TILE_SIZE / 2, y: 4 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 3 * TILE_SIZE + TILE_SIZE / 2, y: 4 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 4 * TILE_SIZE + TILE_SIZE / 2, y: 4 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 5 * TILE_SIZE + TILE_SIZE / 2, y: 4 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 6 * TILE_SIZE + TILE_SIZE / 2, y: 4 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 7 * TILE_SIZE + TILE_SIZE / 2, y: 4 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 8 * TILE_SIZE + TILE_SIZE / 2, y: 4 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 9 * TILE_SIZE + TILE_SIZE / 2, y: 4 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 10 * TILE_SIZE + TILE_SIZE / 2, y: 4 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 11 * TILE_SIZE + TILE_SIZE / 2, y: 4 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 11 * TILE_SIZE + TILE_SIZE / 2, y: 5 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 11 * TILE_SIZE + TILE_SIZE / 2, y: 6 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 11 * TILE_SIZE + TILE_SIZE / 2, y: 7 * TILE_SIZE + TILE_SIZE / 2 }
+    ]
+  }
+];
+
+/**
+ * 获取所有路径的入口点 / Get all path entry points
+ */
+export function getPathEntries(): Position[] {
+  return PATHS.map(p => p.nodes[0]);
+}
+
+/**
+ * 获取所有路径的出口点 / Get all path exit points
+ */
+export function getPathExits(): Position[] {
+  return PATHS.map(p => p.nodes[p.nodes.length - 1]);
+}
+
+/**
+ * 根据难度获取可用路径 / Get available paths by difficulty
+ * @param difficulty - 难度等级 (1-3)
+ */
+export function getPathsByDifficulty(difficulty: number): Path[] {
+  return PATHS.filter(p => p.difficulty <= difficulty);
+}
 
 /** 
  * ============================================

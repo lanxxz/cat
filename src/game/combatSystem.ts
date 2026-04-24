@@ -1,7 +1,7 @@
 /**
  * Combat System / 战斗系统
  * 
- * 敌人生成、攻击、伤害计算
+ * 敌人生成、攻击、伤害计算 - 支持多路径
  * @module combatSystem
  */
 
@@ -10,10 +10,18 @@ import { ENEMY_TYPES, TOWER_TYPES, WAVE_SPEED_BONUS, LEAK_SPEED_BONUS, TOWER_SPE
 
 /**
  * 敌人生成 / Spawn enemy
+ * @param state - 游戏状态
+ * @param type - 敌人类型
+ * @param currentWave - 当前波次
+ * @param pathId - 路径ID（随机选择）
  */
-export function spawnEnemy(state: GameStateRef, type: number, currentWave: number): Enemy {
+export function spawnEnemy(state: GameStateRef, type: number, currentWave: number, pathId?: number): Enemy {
   const enemyType = ENEMY_TYPES[type];
-  const startPos = state.path[0];
+  
+  // 随机选择路径（如果没有指定）
+  const chosenPathId = pathId ?? Math.floor(Math.random() * state.paths.length);
+  const path = state.paths[chosenPathId];
+  const startPos = path[0];
   
   const waveBonus = (currentWave - 1) * WAVE_SPEED_BONUS;
   const leakBonus = state.enemiesLeaked * LEAK_SPEED_BONUS;
@@ -22,27 +30,48 @@ export function spawnEnemy(state: GameStateRef, type: number, currentWave: numbe
   const speed = enemyType.speed * (1 + waveBonus + leakBonus + towerBonus + enemyTypeBonus);
   const reward = Math.floor(enemyType.reward * (1 + state.towers.length * TOWER_REWARD_BONUS));
   
-  return { x: startPos.x, y: startPos.y, type, health: enemyType.health, maxHealth: enemyType.health, speed, reward, pathIndex: 2, wobble: Math.random() * 6.28 };
+  return { 
+    x: startPos.x, 
+    y: startPos.y, 
+    type, 
+    health: enemyType.health, 
+    maxHealth: enemyType.health, 
+    speed, 
+    reward, 
+    pathIndex: 2, 
+    pathId: chosenPathId,
+    wobble: Math.random() * 6.28 
+  };
 }
 
 /**
- * 敌人移动 / Move enemies
+ * 敌人移动 - 支持多路径 / Move enemies with multi-path support
  */
 export function moveEnemies(state: GameStateRef, onLeak: () => void): number {
   let leakedCount = 0;
   for (let i = state.enemies.length - 1; i >= 0; i--) {
     const e = state.enemies[i];
-    const targetIndex = Math.min(e.pathIndex, state.path.length - 1);
-    const target = state.path[targetIndex];
+    
+    // 获取当前敌人所在的路径
+    const path = state.paths[e.pathId];
+    if (!path) continue;
+    
+    const targetIndex = Math.min(e.pathIndex, path.length - 1);
+    const target = path[targetIndex];
     const dx = target.x - e.x;
     const dy = target.y - e.y;
     const dist = Math.hypot(dx, dy);
     
-    if (dist < e.speed) e.pathIndex++;
-    else { e.x += (dx / dist) * e.speed; e.y += (dy / dist) * e.speed; }
+    if (dist < e.speed) {
+      e.pathIndex++;
+    } else {
+      e.x += (dx / dist) * e.speed;
+      e.y += (dy / dist) * e.speed;
+    }
     e.wobble += 0.2;
     
-    if (e.pathIndex >= state.path.length) {
+    // 检查是否到达路径终点
+    if (e.pathIndex >= path.length) {
       state.enemies.splice(i, 1);
       state.enemiesLeaked++;
       onLeak();

@@ -45,7 +45,7 @@ export default function App() {
   const [isPaused, setIsPaused] = useState(false);
   
   const t = TEXT(lang);
-  const gameRef = useRef<GameStateRef>(initGameState([], [], []));
+  const gameRef = useRef<GameStateRef>(initGameState([], [], [], [], []));
   const shakeRef = useRef<ShakeState>(createShakeState());
   const selectedTowerRef = useRef(selectedTowerType);
   const goldRef = useRef(gold);
@@ -61,9 +61,9 @@ export default function App() {
   }, []);
   
   const startGame = useCallback(() => {
-    const { map, path } = buildInitialMap();
+    const { map, path, paths, pathIds } = buildInitialMap();
     const boxes = spawnBoxes(map);
-    gameRef.current = initGameState(map, path, boxes);
+    gameRef.current = initGameState(map, path, paths, pathIds, boxes);
     shakeRef.current = createShakeState();
     setGold(INITIAL_GOLD); setLives(INITIAL_LIVES); setScore(0); setWave(1);
     setSelectedTowerType(-1); setIsPaused(false); setGameState('playing');

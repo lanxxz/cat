@@ -50,6 +50,7 @@ export interface Enemy {
   speed: number;
   reward: number;
   pathIndex: number;
+  pathId: number;      // 当前所在路径ID / Current path ID
   wobble: number;
 }
 
@@ -119,6 +120,57 @@ export interface Position {
 }
 
 /**
+ * Path node - 路径节点（支持分支）
+ * 
+ * @property x - X coordinate / X 坐标
+ * @property y - Y coordinate / Y 坐标
+ * @property branches - 可选的分支目标索引 / Optional branch destination indices
+ * @property isEntry - 是否是入口节点 / Whether this is an entry point
+ * @property isExit - 是否是出口节点 / Whether this is an exit point
+ */
+export interface PathNode {
+  x: number;
+  y: number;
+  branches?: number[];    // 分支索引数组 / Branch indices
+  isEntry?: boolean;     // 入口标记 / Entry marker
+  isExit?: boolean;      // 出口标记 / Exit marker
+}
+
+/**
+ * Path - 一条完整路径
+ * 
+ * @property id - 路径唯一标识 / Path unique identifier
+ * @property name - 路径名称 / Path name
+ * @property nodes - 路径节点列表 / Path nodes list
+ * @property difficulty - 路径难度 (1-10) / Path difficulty
+ * @property color - 路径颜色 / Path color
+ * @property enemyTypes - 可使用此路径的敌人类型 / Enemy types that can use this path
+ */
+export interface Path {
+  id: number;
+  name: string;
+  nodes: Position[];
+  difficulty: number;
+  color: string;
+  enemyTypes: number[];
+}
+
+/**
+ * Multi-path system - 多路径系统
+ * 
+ * @property paths - 所有路径列表 / All paths list
+ * @property branches - 所有分支点列表 / All branch points
+ * @property entries - 入口点列表 / Entry points
+ * @property exits - 出口点列表 / Exit points
+ */
+export interface MultiPathSystem {
+  paths: Path[];
+  branches: PathNode[];
+  entries: Position[];
+  exits: Position[];
+}
+
+/**
  * Wave data / 波次数据
  * 
  * @property type - Enemy type index / 敌人类型索引
@@ -138,6 +190,8 @@ export interface WaveData {
 export interface GameStateRef {
   map: number[][];
   path: Position[];
+  paths: Position[][];       // 多路径 / Multiple paths
+  pathIds: number[];         // 路径ID列表 / Path IDs
   towers: Tower[];
   enemies: Enemy[];
   projectiles: Projectile[];

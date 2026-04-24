@@ -30,11 +30,15 @@ import type { Tower, Enemy, Projectile, Particle, Box } from '../types';
  * Renders all game elements in correct order
  * 按正确顺序渲染所有游戏元素
  */
+import type { Position } from '../types';
+
 export function renderGame(
   ctx: CanvasRenderingContext2D,
   state: {
     map: number[][];
-    path: { x: number; y: number }[];
+    path: Position[];
+    paths: Position[][];
+    pathIds: number[];
     boxes: Box[];
     towers: Tower[];
     enemies: Enemy[];
@@ -48,8 +52,9 @@ export function renderGame(
   // 1. 地图 / Map
   renderMap(ctx, state.map);
   
-  // 2. 路径 / Path
-  renderPath(ctx, state.path);
+  // 2. 路径 / Path (支持多路径)
+  const allPaths = state.paths && state.paths.length > 0 ? state.paths : [state.path];
+  renderPath(ctx, allPaths, state.pathIds);
   
   // 3. 纸箱 / Boxes
   renderBoxes(ctx, state.boxes);
@@ -64,7 +69,8 @@ export function renderGame(
   renderProjectiles(ctx, state.projectiles);
   
   // 7. 基地 / Base
-  renderBase(ctx, state.path);
+  const basePath = state.paths && state.paths[0] ? state.paths[0] : state.path;
+  renderBase(ctx, basePath);
   
   // 8. 粒子 / Particles
   renderParticles(ctx, state.particles);

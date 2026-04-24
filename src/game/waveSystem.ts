@@ -1,7 +1,7 @@
 /**
  * Wave System / 波次系统
  * 
- * 波次管理和敌人生成
+ * 波次管理和敌人生成 - 支持多路径
  * @module waveSystem
  */
 
@@ -11,14 +11,23 @@ import { ENEMY_TYPES, WAVES, WAVE_SPEED_BONUS, LEAK_SPEED_BONUS, TOWER_SPEED_BON
 /**
  * 创建敌人 / Spawn enemy
  * @param type - 敌人类型索引
- * @param path - 路径起点
+ * @param path - 路径数组（多路径）
+ * @param pathId - 路径ID
  * @param currentWave - 当前波次
  * @param towersCount - 防御塔数量
  * @param enemiesLeaked - 漏敌数
  * @returns 敌对象
  */
-export function createEnemy(type: number, path: { x: number; y: number }[], currentWave: number, towersCount: number, enemiesLeaked: number): Enemy {
+export function createEnemy(
+  type: number, 
+  paths: { x: number; y: number }[][], 
+  pathId: number,
+  currentWave: number, 
+  towersCount: number, 
+  enemiesLeaked: number
+): Enemy {
   const enemyType = ENEMY_TYPES[type];
+  const path = paths[pathId] || paths[0];
   const startPos = path[0];
   
   // 速度计算
@@ -44,6 +53,7 @@ export function createEnemy(type: number, path: { x: number; y: number }[], curr
     speed: finalSpeed,
     reward: finalReward,
     pathIndex: 2,
+    pathId: pathId,
     wobble: Math.random() * Math.PI * 2
   };
 }
@@ -77,7 +87,7 @@ export function startWave(waveNum: number): number[] {
  * @param enemiesToSpawn - 待生成队列
  * @param timer - 生成计时器
  * @param interval - 生成间隔
- * @param path - 路径
+ * @param paths - 路径数组（多路径）
  * @param currentWave - 当前波次
  * @param towersCount - 防御塔数量
  * @param enemiesLeaked - 漏敌数
@@ -87,13 +97,14 @@ export function spawnEnemyIfNeeded(
   enemiesToSpawn: number[], 
   timer: number, 
   interval: number,
-  path: { x: number; y: number }[],
+  paths: { x: number; y: number }[][],  // 多路径数组
   currentWave: number,
   towersCount: number,
   enemiesLeaked: number
 ): Enemy | null {
   if (enemiesToSpawn.length > 0 && timer >= interval) {
-    return createEnemy(enemiesToSpawn.shift()!, path, currentWave, towersCount, enemiesLeaked);
+    const pathId = Math.floor(Math.random() * paths.length);
+    return createEnemy(enemiesToSpawn.shift()!, paths, pathId, currentWave, towersCount, enemiesLeaked);
   }
   return null;
 }

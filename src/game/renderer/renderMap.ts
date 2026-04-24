@@ -2,11 +2,11 @@
  * Map Renderer / 地图渲染器
  * 
  * Renders game map tiles, path, and boxes.
- * 渲染游戏地图格子、路径和纸箱。
+ * 支持多路径渲染。
  */
 
-import { TILE_SIZE, GRID_WIDTH, GRID_HEIGHT, TILE } from '../constants';
-import type { Box } from '../types';
+import { TILE_SIZE, GRID_WIDTH, GRID_HEIGHT, TILE, PATHS } from '../constants';
+import type { Box, Position } from '../types';
 
 /**
  * 渲染地图背景和格子 / Render map background and tiles
@@ -30,16 +30,21 @@ export function renderMap(ctx: CanvasRenderingContext2D, map: number[][]): void 
 }
 
 /**
- * 渲染敌人路径 / Render enemy path
+ * 渲染单条路径 / Render single path
  * @param ctx - Canvas context
- * @param path - Array of path positions / 路径位置数组
+ * @param path - 路径位置数组
+ * @param color - 路径颜色
+ * @param isPrimary - 是否为主要路径
  */
-export function renderPath(ctx: CanvasRenderingContext2D, path: { x: number; y: number }[]): void {
+function renderSinglePath(ctx: CanvasRenderingContext2D, path: Position[], color: string, isPrimary: boolean = false): void {
   if (path.length === 0) return;
   
+  const lineWidth = isPrimary ? TILE_SIZE * 0.6 : TILE_SIZE * 0.4;
+  const shadowColor = isPrimary ? '#FFE0B2' : color + '40';
+  
   // 路径阴影 / Path shadow
-  ctx.strokeStyle = '#FFE0B2';
-  ctx.lineWidth = TILE_SIZE * 0.6;
+  ctx.strokeStyle = shadowColor;
+  ctx.lineWidth = lineWidth;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
   ctx.beginPath();
@@ -49,10 +54,10 @@ export function renderPath(ctx: CanvasRenderingContext2D, path: { x: number; y: 
   }
   ctx.stroke();
   
-  // 路径虚线 / Path dashes
-  ctx.strokeStyle = '#FFCC80';
-  ctx.lineWidth = 4;
-  ctx.setLineDash([10, 10]);
+  // 路径实线 / Path solid line
+  ctx.strokeStyle = color;
+  ctx.lineWidth = isPrimary ? 4 : 2;
+  ctx.setLineDash(isPrimary ? [10, 10] : [8, 8]);
   ctx.beginPath();
   for (let i = 0; i < path.length; i++) {
     if (i === 0) ctx.moveTo(path[i].x, path[i].y);
@@ -60,6 +65,61 @@ export function renderPath(ctx: CanvasRenderingContext2D, path: { x: number; y: 
   }
   ctx.stroke();
   ctx.setLineDash([]);
+  
+  // 绘制入口点标记 / Draw entry point marker
+  const entry = path[0];
+  ctx.beginPath();
+  ctx.arc(entry.x, entry.y, 12, 0, Math.PI * 2);
+  ctx.fillStyle = color;
+  ctx.globalAlpha = 0.3;
+  ctx.fill();
+  ctx.globalAlpha = 1.0;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+  ctx.stroke();
+}
+
+/**
+ * 渲染敌人路径（支持多路径）/ Render enemy paths (multi-path support)
+ * @param ctx - Canvas context
+ * @param paths - 路径数组（多路径）
+ * @param pathIds - 路径ID数组
+ */
+export function renderPath(ctx: CanvasRenderingContext2D, paths: Position[][], _pathIds: number[] = []): void {
+  // 渲染所有路径
+  for (let i = 0; i < paths.length; i++) {
+    const path = paths[i];
+    const config = PATHS[i];
+    const color = config?.color || '#FFCC80';
+    renderSinglePath(ctx, path, color, i === 0);  // 第一条路径为主路径
+  }
+  
+  // 绘制路径难度图例 / Draw path difficulty legend
+  drawPathLegend(ctx);
+}
+
+/**
+ * 绘制路径难度图例 / Draw path difficulty legend
+ */
+function drawPathLegend(ctx: CanvasRenderingContext2D): void {
+  const legendX = 10;
+  const legendY = GRID_HEIGHT * TILE_SIZE - 25;
+  
+  ctx.font = '11px Nunito';
+  ctx.textAlign = 'left';
+  
+  PATHS.forEach((path, index) => {
+    const x = legendX + index * 80;
+    
+    // 颜色条
+    ctx.fillStyle = path.color;
+    ctx.fillRect(x, legendY, 10, 10);
+    
+    // 难度文字
+    ctx.fillStyle = '#5D4037';
+    const difficultyText = path.difficulty === 1 ? 'Easy' : path.difficulty === 2 ? 'Normal' : 'Hard';
+    ctx.fillText(difficultyText, x + 14, legendY + 9);
+  });
 }
 
 /**
