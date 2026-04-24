@@ -4,6 +4,8 @@ export type Language = 'zh' | 'en';
 export const TEXTS = {
   zh: {
     title: '🐱 萌新防御 🥫',
+    ready: '准备开始',
+    start: '开始游戏 🎮',
     wave: '波次',
     gold: '金币',
     lives: '生命',
@@ -31,6 +33,8 @@ export const TEXTS = {
   },
   en: {
     title: '🐱 Hajimi Defense 🥫',
+    ready: 'Ready',
+    start: 'START GAME 🎮',
     wave: 'Wave',
     gold: 'Gold',
     lives: 'Lives',

@@ -11,5 +11,6 @@
 export * from './constants';
 export * from './types';
 export { TEXT, TEXTS, ENEMY_TRANSLATIONS, ENEMY_DATA } from './i18n';
+export * from './gameEngine';
 export type { Language } from './types';
 export type { GameState } from './types';
