@@ -39,8 +39,41 @@ export {
   LEVEL1_ENEMY_COUNT,
   LEVEL1_WAVE,
   TUTORIAL_TRANSITION_DELAY,
-  LEVEL_ANNOUNCEMENT_DURATION
+  LEVEL_ANNOUNCEMENT_DURATION,
+// Upgrade system constants / 升级系统常量
+  MAX_TOWER_LEVEL,
+  UPGRADE_UNLOCK_WAVE,
+  UNLOCK_COST_PER_TOWER,
+  UNLOCK_MAX_COST,
+  UPGRADE_COST_MULTIPLIER,
+  UPGRADE_DAMAGE_MULTIPLIER,
+  UPGRADE_RANGE_MULTIPLIER,
+  LEVEL_COLORS,
+  LEVEL_BADGE_COLORS,
+  getTowerStats,
+  getUpgradeCost,
+  getSellValue,
+  getUnlockCost
 } from './constants';
+
+export type { LevelDisplayConfig } from './constants';
 
 export type { TowerTypeConfig, EnemyTypeConfig } from './constants';
 export type { TileType } from './constants';
+
+// Re-export gameEngine functions / 游戏引擎函数重导出
+export {
+  createParticle,
+  spawnBreakBoxParticles,
+  spawnPlaceTowerParticles,
+  spawnKillEnemyParticles,
+  updateParticles,
+  createShakeState,
+  triggerShake,
+  applyShake,
+  createUpgradeGlowState,
+  updateUpgradeGlow,
+  spawnUpgradeParticles
+} from './gameEngine';
+
+export type { ShakeState, UpgradeGlowState } from './gameEngine';

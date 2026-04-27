@@ -64,6 +64,12 @@ export const PARTICLE_COUNT_PLACE_TOWER = 15;
 /** 粒子效果数量 - 击杀敌人 / Particle count - killing enemy */
 export const PARTICLE_COUNT_KILL_ENEMY = 15;
 
+/** 升级粒子效果数量 / Upgrade particle count */
+export const PARTICLE_COUNT_UPGRADE = 20;
+
+/** 升级光环持续时间（帧）/ Upgrade glow duration in frames */
+export const UPGRADE_GLOW_DURATION = 30;
+
 /** 敌人摆动动画速度 / Enemy wobble animation speed */
 export const ENEMY_WOBBLE_SPEED = 0.2;
 
@@ -423,3 +429,128 @@ export const TILE = {
  * 4 = 防御塔
  */
 export type TileType = typeof TILE.EMPTY | typeof TILE.PATH | typeof TILE.BOX | typeof TILE.BASE | typeof TILE.TOWER;
+
+/** 
+ * ============================================
+ * UPGRADE SYSTEM / 升级系统
+ * ============================================
+ */
+
+/** 防御塔最大等级 / Maximum tower upgrade level */
+export const MAX_TOWER_LEVEL = 5;
+
+/** 升级功能解锁波次 / Wave number to unlock upgrade feature */
+export const UPGRADE_UNLOCK_WAVE = 3;
+
+/** 解锁费用每只猫咪基数 / Unlock cost per tower on field */
+export const UNLOCK_COST_PER_TOWER = 100;
+
+/** 解锁费用上限 / Maximum unlock cost */
+export const UNLOCK_MAX_COST = 2000;
+
+/** 升级费用倍率 / Upgrade cost multiplier per level */
+export const UPGRADE_COST_MULTIPLIER = 2;
+
+/** 升级攻击力倍率 / Upgrade damage multiplier per level */
+export const UPGRADE_DAMAGE_MULTIPLIER = 1.2;
+
+/** 升级范围倍率 / Upgrade range multiplier per level */
+export const UPGRADE_RANGE_MULTIPLIER = 1.05;
+
+/** 等级光环颜色映射 / Level glow color map (level → CSS color, null = no tint) */
+export const LEVEL_COLORS: Record<number, string | null> = {
+  1: null,
+  2: '#4CAF50',
+  3: '#2196F3',
+  4: '#9C27B0',
+  5: '#FFD700'
+};
+
+/** 等级徽章颜色映射 / Level badge text color map */
+export const LEVEL_BADGE_COLORS: Record<number, string> = {
+  1: '#999999',
+  2: '#4CAF50',
+  3: '#2196F3',
+  4: '#9C27B0',
+  5: '#FFD700'
+};
+
+/**
+ * 获取指定等级的防御塔属性 / Get level-scaled tower stats
+ * @param towerType - 防御塔类型索引 (0=Tabby, 1=Siamese, 2=Orange)
+ * @param level - 等级 (1-5, 自动钳制到有效范围)
+ * @returns 包含 damage、range、attackSpeed 的对象
+ */
+export function getTowerStats(
+  towerType: number,
+  level: number
+): { damage: number; range: number; attackSpeed: number } {
+  const clampLevel = Math.max(1, Math.min(level, MAX_TOWER_LEVEL));
+  const base = TOWER_TYPES[towerType];
+  const damage = Math.round(base.damage * Math.pow(UPGRADE_DAMAGE_MULTIPLIER, clampLevel - 1));
+  const range = Math.round(base.range * Math.pow(UPGRADE_RANGE_MULTIPLIER, clampLevel - 1));
+  return { damage, range, attackSpeed: base.attackSpeed };
+}
+
+/** 等级徽章字体样式 / Level badge font style */
+export const LEVEL_BADGE_FONT = 'bold 11px Fredoka One';
+
+/** 等级徽章偏移位置 / Level badge offset from tower center */
+export const LEVEL_BADGE_OFFSET = { x: 18, y: -18 };
+
+/**
+ * 等级显示配置 / Level display configuration
+ */
+export interface LevelDisplayConfig {
+  glowColor: string | null;  // 光环颜色（level 1 为 null 表示无光环）
+  badgeColor: string;        // 徽章文字颜色
+  badgeText: string;         // 徽章文字（如 "Lv.3"）
+}
+
+/**
+ * 获取指定等级的显示配置 / Get level display configuration
+ * @param level - 等级 (1-5)
+ * @returns 显示配置对象 / Display configuration object
+ */
+export function getLevelDisplayConfig(level: number): LevelDisplayConfig {
+  const clampLevel = Math.max(1, Math.min(level, MAX_TOWER_LEVEL));
+  return {
+    glowColor: LEVEL_COLORS[clampLevel],
+    badgeColor: LEVEL_BADGE_COLORS[clampLevel],
+    badgeText: `Lv.${clampLevel}`
+  };
+}
+
+import type { Tower } from './types';
+
+/**
+ * 计算升级费用 / Calculate upgrade cost
+ * 费用 = 基础费用 × 2^当前等级 / Cost = base cost × 2^currentLevel
+ * @param towerType - 防御塔类型索引 (0=Tabby,1=Siamese,2=Orange)
+ * @param currentLevel - 当前等级 (1-5)
+ * @returns 升级费用（金币），满级返回 null
+ */
+export function getUpgradeCost(towerType: number, currentLevel: number): number | null {
+  if (currentLevel >= MAX_TOWER_LEVEL) return null;
+  return TOWER_TYPES[towerType].cost * Math.pow(UPGRADE_COST_MULTIPLIER, currentLevel);
+}
+
+/**
+ * 计算出售价格 / Calculate sell value
+ * 出售价格 = floor(总投入 × 0.5) / Sell value = floor(totalInvested × 50%)
+ * @param tower - 防御塔对象
+ * @returns 出售可获得金币
+ */
+export function getSellValue(tower: Tower): number {
+  return Math.floor(tower.totalInvested * 0.5);
+}
+
+/**
+ * 计算升级解锁费用 / Calculate upgrade unlock cost
+ * 费用 = min(场上猫咪总数 × 100, 2000) / Cost = min(towerCount × 100, 2000)
+ * @param currentTowerCount - 当前场上猫咪总数
+ * @returns 解锁费用（金币）
+ */
+export function getUnlockCost(currentTowerCount: number): number {
+  return Math.min(currentTowerCount * UNLOCK_COST_PER_TOWER, UNLOCK_MAX_COST);
+}

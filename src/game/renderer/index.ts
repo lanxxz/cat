@@ -50,7 +50,8 @@ export function renderGame(
   hoverTile: { x: number; y: number },
   selectedTowerType: number,
   gold: number,
-  tutorialStep: number = 0
+  tutorialStep: number = 0,
+  _selectedTowerIndex: number | null = null  // 升级弹窗：选中的防御塔索引（渲染器暂未使用 / Not yet used by renderer）
 ): void {
   // 1. 地图 / Map
   renderMap(ctx, state.map);

@@ -25,6 +25,8 @@ export type Language = 'zh' | 'en';
  * @property type - Tower type index (0=Tabby, 1=Siamese, 2=Orange) / 防御塔类型索引
  * @property lastAttack - Timestamp of last attack / 上次攻击时间戳
  * @property angle - Current rotation angle for shooting / 当前射击角度
+ * @property level - Tower upgrade level (1-5, default 1) / 防御塔升级等级
+ * @property totalInvested - Cumulative gold spent on this tower / 累计投入金币
  */
 export interface Tower {
   x: number;
@@ -32,6 +34,8 @@ export interface Tower {
   type: number;
   lastAttack: number;
   angle: number;
+  level: number;
+  totalInvested: number;
 }
 
 /**
@@ -210,4 +214,5 @@ export interface GameStateRef {
   waveInProgress: boolean;
   hoverTile: Position;
   enemiesLeaked: number;
+  upgradeUnlocked: boolean[];  // 升级功能解锁状态 [type0, type1, type2] / Upgrade unlock status per tower type
 }

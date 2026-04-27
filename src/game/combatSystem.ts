@@ -6,7 +6,7 @@
  */
 
 import type { Enemy, GameStateRef } from './types';
-import { ENEMY_TYPES, TOWER_TYPES, WAVE_SPEED_BONUS, LEAK_SPEED_BONUS, TOWER_SPEED_BONUS, MOSQUITO_SPEED_BONUS, RAT_SPEED_BONUS, TOWER_REWARD_BONUS, SPEED_SCORE_MULTIPLIER, PROJECTILE_LIFE, TILE_SIZE, GRID_WIDTH, GRID_HEIGHT } from './constants';
+import { ENEMY_TYPES, TOWER_TYPES, WAVE_SPEED_BONUS, LEAK_SPEED_BONUS, TOWER_SPEED_BONUS, MOSQUITO_SPEED_BONUS, RAT_SPEED_BONUS, TOWER_REWARD_BONUS, SPEED_SCORE_MULTIPLIER, PROJECTILE_LIFE, TILE_SIZE, GRID_WIDTH, GRID_HEIGHT, getTowerStats } from './constants';
 
 /**
  * 敌人生成 / Spawn enemy
@@ -93,21 +93,25 @@ export function moveEnemies(state: GameStateRef, onLeak: () => void): number {
  */
 export function towerAttacks(state: GameStateRef, timestamp: number): void {
   for (const tower of state.towers) {
-    const towerType = TOWER_TYPES[tower.type];
-    if (timestamp - tower.lastAttack < towerType.attackSpeed) continue;
+    // 获取基础类型配置（非缩放属性：type, aoeRadius） / Get base type config (non-scaling properties: type, aoeRadius)
+    const baseType = TOWER_TYPES[tower.type];
+    // 获取等级缩放后的属性（damage, range, attackSpeed） / Get level-scaled stats (damage, range, attackSpeed)
+    const stats = getTowerStats(tower.type, tower.level);
+    if (timestamp - tower.lastAttack < stats.attackSpeed) continue;
     
     let target: Enemy | null = null;
     let maxProgress = -1;
     for (const e of state.enemies) {
       const dist = Math.hypot(e.x - tower.x, e.y - tower.y);
-      if (dist <= towerType.range && e.pathIndex > maxProgress) { maxProgress = e.pathIndex; target = e; }
+      if (dist <= stats.range && e.pathIndex > maxProgress) { maxProgress = e.pathIndex; target = e; }
     }
     
     if (target) {
       tower.lastAttack = timestamp;
       const angle = Math.atan2(target.y - tower.y, target.x - tower.x);
       tower.angle = angle;
-      state.projectiles.push({ x: tower.x, y: tower.y, angle, speed: towerType.type === 'aoe' ? 8 : (tower.type === 0 ? 10 : 15), damage: towerType.damage, type: towerType.type as 'single' | 'aoe', aoeRadius: towerType.aoeRadius, life: PROJECTILE_LIFE });
+      // 投射物速度和类型不随等级变化 / Projectile speed and type don't scale with level
+      state.projectiles.push({ x: tower.x, y: tower.y, angle, speed: baseType.type === 'aoe' ? 8 : (tower.type === 0 ? 10 : 15), damage: stats.damage, type: baseType.type as 'single' | 'aoe', aoeRadius: baseType.aoeRadius, life: PROJECTILE_LIFE });
     }
   }
 }

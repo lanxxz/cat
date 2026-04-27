@@ -224,6 +224,45 @@ export const towerEmojiStyle: React.CSSProperties = {
   marginBottom: '5px'
 };
 
+/** 升级模式按钮样式 / Upgrade mode button style - golden gradient when active */
+export const upgradeModeButtonStyle = (active: boolean, disabled: boolean): React.CSSProperties => ({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  padding: '12px 16px',
+  background: active
+    ? 'linear-gradient(180deg, #FFB300 0%, #FF8F00 100%)'
+    : disabled
+    ? 'linear-gradient(180deg, #E0E0E0 0%, #BDBDBD 100%)'
+    : 'linear-gradient(180deg, #FFF8E1 0%, #FFE082 100%)',
+  border: `3px solid ${active ? '#FF6F00' : disabled ? '#9E9E9E' : '#FFB300'}`,
+  borderRadius: '15px',
+  cursor: disabled ? 'not-allowed' : 'pointer',
+  opacity: disabled ? 0.5 : 1,
+  minWidth: '100px',
+  transition: 'all 0.2s ease',
+  fontFamily: 'Nunito, sans-serif'
+});
+
+/** 升级模式按钮手机端紧凑样式 / Compact upgrade mode button for phone */
+export const upgradeModeButtonPhoneStyle = (active: boolean, disabled: boolean): React.CSSProperties => ({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  padding: '6px 10px',
+  background: active
+    ? 'linear-gradient(180deg, #FFB300 0%, #FF8F00 100%)'
+    : disabled
+    ? 'linear-gradient(180deg, #E0E0E0 0%, #BDBDBD 100%)'
+    : 'linear-gradient(180deg, #FFF8E1 0%, #FFE082 100%)',
+  border: `2px solid ${active ? '#FF6F00' : disabled ? '#9E9E9E' : '#FFB300'}`,
+  borderRadius: '12px',
+  cursor: disabled ? 'not-allowed' : 'pointer',
+  opacity: disabled ? 0.5 : 1,
+  minWidth: '60px',
+  transition: 'all 0.2s ease'
+});
+
 /**
  * ============================================
  * OVERLAY STYLES / 覆盖层样式
@@ -468,4 +507,54 @@ export const levelAnnouncementSubtitle: React.CSSProperties = {
   fontWeight: 600,
   marginTop: '8px',
   color: '#FFF8E7'
+};
+
+/**
+ * ============================================
+ * UPGRADE POPUP STYLES / 升级弹出框样式
+ * ============================================
+ */
+
+/** Upgrade popup container - pink kawaii floating panel / 升级弹出框容器 - 粉色可爱浮动面板 */
+export const upgradePopupContainerStyle: React.CSSProperties = {
+  position: 'absolute',
+  background: 'linear-gradient(180deg, #FFF 0%, #FFE4EC 100%)',
+  border: '3px solid #FFB6C1',
+  borderRadius: '12px',
+  padding: '12px 16px',
+  fontFamily: 'Nunito, sans-serif',
+  fontSize: '13px',
+  color: '#5D4037',
+  boxShadow: '0 4px 16px rgba(255,107,157,0.3)',
+  zIndex: 95,
+  minWidth: '160px',
+  pointerEvents: 'auto'
+};
+
+/** Upgrade popup action button - pink gradient / 升级弹出框操作按钮 - 粉色渐变 */
+export const upgradePopupButtonStyle: React.CSSProperties = {
+  display: 'block',
+  width: '100%',
+  padding: '6px 12px',
+  marginTop: '6px',
+  border: 'none',
+  borderRadius: '8px',
+  fontFamily: 'Fredoka One, cursive',
+  fontSize: '14px',
+  cursor: 'pointer',
+  background: 'linear-gradient(180deg, #FF80AB 0%, #FF4081 100%)',
+  color: 'white'
+};
+
+/** Upgrade popup close (X) button / 升级弹出框关闭按钮 */
+export const upgradePopupCloseStyle: React.CSSProperties = {
+  position: 'absolute',
+  top: '4px',
+  right: '8px',
+  background: 'none',
+  border: 'none',
+  fontSize: '18px',
+  cursor: 'pointer',
+  color: '#C51162',
+  fontFamily: 'sans-serif'
 };

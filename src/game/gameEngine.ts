@@ -14,6 +14,7 @@ import {
   PARTICLE_COUNT_BREAK_BOX,
   PARTICLE_COUNT_PLACE_TOWER,
   PARTICLE_COUNT_KILL_ENEMY,
+  PARTICLE_COUNT_UPGRADE,
   PARTICLE_GRAVITY,
   TILE_SIZE
 } from './constants';
@@ -78,6 +79,53 @@ export function spawnPlaceTowerParticles(state: GameStateRef, tileX: number, til
 export function spawnKillEnemyParticles(state: GameStateRef, enemy: Enemy): void {
   for (let p = 0; p < PARTICLE_COUNT_KILL_ENEMY; p++) {
     state.particles.push(createParticle(enemy.x, enemy.y, '#7CB342'));
+  }
+}
+
+// ============================================
+// UPGRADE PARTICLE & GLOW SYSTEM / 升级粒子与光环系统
+// ============================================
+
+/**
+ * 升级光环状态 / Upgrade glow state
+ */
+export interface UpgradeGlowState {
+  active: boolean;    // 是否激活 / Whether active
+  towerX: number;     // 防御塔 X 坐标 / Tower X position
+  towerY: number;     // 防御塔 Y 坐标 / Tower Y position
+  frame: number;      // 剩余帧数 / Remaining frames
+}
+
+/**
+ * 创建升级光环初始状态 / Create initial upgrade glow state
+ * @returns 初始状态对象
+ */
+export function createUpgradeGlowState(): UpgradeGlowState {
+  return { active: false, towerX: 0, towerY: 0, frame: 0 };
+}
+
+/**
+ * 更新升级光环状态 / Update upgrade glow state
+ * @param state - 光环状态
+ */
+export function updateUpgradeGlow(state: UpgradeGlowState): void {
+  if (state.active && state.frame > 0) {
+    state.frame--;
+    if (state.frame <= 0) state.active = false;
+  }
+}
+
+/**
+ * 生成升级粒子效果 / Spawn upgrade particles
+ * @param state - 游戏状态引用
+ * @param tileX - 格子 X 坐标
+ * @param tileY - 格子 Y 坐标
+ */
+export function spawnUpgradeParticles(state: { particles: any[] }, tileX: number, tileY: number): void {
+  const x = tileX * TILE_SIZE + TILE_SIZE / 2;
+  const y = tileY * TILE_SIZE + TILE_SIZE / 2;
+  for (let p = 0; p < PARTICLE_COUNT_UPGRADE; p++) {
+    state.particles.push(createParticle(x, y, '#FFD700'));
   }
 }
 

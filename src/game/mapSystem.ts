@@ -105,6 +105,7 @@ export function initGameState(map: number[][], path: Position[], paths: Position
     enemySpawnTimer: 0,
     waveInProgress: false,
     hoverTile: { x: -1, y: -1 },
-    enemiesLeaked: 0
+    enemiesLeaked: 0,
+    upgradeUnlocked: [false, false, false]  // [Tabby, Siamese, Orange] 升级解锁状态
   };
 }

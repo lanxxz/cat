@@ -6,6 +6,7 @@
  */
 
 import type { Tower } from '../types';
+import { getLevelDisplayConfig, LEVEL_BADGE_FONT, LEVEL_BADGE_OFFSET } from '../constants';
 
 /**
  * 渲染所有防御塔 / Render all towers
@@ -33,6 +34,23 @@ function renderTower(ctx: CanvasRenderingContext2D, tower: Tower): void {
   ctx.ellipse(tx, ty + 22, 24, 10, 0, 0, Math.PI * 2);
   ctx.fill();
   
+  // 等级显示配置 / Level display configuration
+  const level = tower.level || 1;
+  const display = getLevelDisplayConfig(level);
+  
+  // 等级光环（Lv2+ 有颜色光晕）/ Level glow ring (Lv2+ has colored glow)
+  if (display.glowColor) {
+    ctx.save();
+    ctx.shadowColor = display.glowColor;
+    ctx.shadowBlur = 6 + level * 2; // 等级越高光环越大 / Bigger glow at higher levels
+    ctx.beginPath();
+    ctx.arc(tx, ty, 20, 0, Math.PI * 2);
+    ctx.fillStyle = display.glowColor;
+    ctx.globalAlpha = 0.12;
+    ctx.fill();
+    ctx.restore();
+  }
+  
   // 根据类型渲染不同猫咪 / Render different cats based on type
   if (tower.type === 0) {
     renderSpittingTabby(ctx, tx, ty);
@@ -41,6 +59,29 @@ function renderTower(ctx: CanvasRenderingContext2D, tower: Tower): void {
   } else {
     renderOrangeBreadCat(ctx, tx, ty);
   }
+  
+  // 等级徽章 / Level badge
+  const badgeX = tx + LEVEL_BADGE_OFFSET.x; // 徽章 X 位置 / Badge X position
+  const badgeY = ty + LEVEL_BADGE_OFFSET.y; // 徽章 Y 位置 / Badge Y position
+  
+  // 徽章背景 / Badge background
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+  const textWidth = ctx.measureText(display.badgeText).width;
+  const badgeW = textWidth + 8;
+  const badgeH = 16;
+  ctx.beginPath();
+  ctx.roundRect(badgeX - badgeW / 2, badgeY - badgeH / 2, badgeW, badgeH, 4);
+  ctx.fill();
+  
+  // 徽章文字 / Badge text
+  ctx.font = LEVEL_BADGE_FONT;
+  ctx.fillStyle = display.badgeColor;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.strokeStyle = '#000';
+  ctx.lineWidth = 2;
+  ctx.strokeText(display.badgeText, badgeX, badgeY);
+  ctx.fillText(display.badgeText, badgeX, badgeY);
 }
 
 /**
