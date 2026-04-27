@@ -9,3 +9,6 @@ export { HUD } from './HUD';
 export { TowerPanel } from './TowerPanel';
 export { StartOverlay, Overlay } from './Overlay';
 export { default as TutorialGuide } from './TutorialGuide';
+export { TowerUpgradePopup } from './TowerUpgradePopup';
+export { PathUnlockNotification } from './PathUnlockNotification';
+export { LevelAnnouncement } from './LevelAnnouncement';
