@@ -242,6 +242,27 @@ export default function App() {
     setSelectedTowerIndex(null);  // 清除选中的防御塔 / Clear selected tower
     if (tutorialStep === 2 && selectedTowerType !== type) setTutorialStep(3);
   }, [tutorialStep, selectedTowerType]);
+  
+  /** 记录进入升级模式前是否已暂停 / Track whether game was paused before entering upgrade mode */
+  const wasPausedBeforeUpgradeRef = useRef(false);
+  
+  /**
+   * 升级模式自动暂停/恢复 / Auto-pause/resume during upgrade mode
+   * 进入升级模式时暂停游戏，退出时恢复（仅当游戏未被手动暂停）
+   * Pause game when entering upgrade mode, resume on exit (only if not manually paused)
+   */
+  useEffect(() => {
+    if (gameState !== 'playing') return;
+    if (upgradeMode) {
+      wasPausedBeforeUpgradeRef.current = isPaused;
+      setIsPaused(true);
+    } else {
+      if (!wasPausedBeforeUpgradeRef.current) {
+        setIsPaused(false);
+      }
+    }
+  }, [upgradeMode, gameState]);  // eslint-disable-line react-hooks/exhaustive-deps
+  
   // 升级模式切换 / Upgrade mode toggle
   const handleSelectUpgradeMode = useCallback(() => {
     setUpgradeMode(p => !p);            // 切换升级模式 / Toggle upgrade mode
@@ -351,7 +372,10 @@ export default function App() {
   handleUpgradeRef.current = handleUpgrade;
   
   const toggleLang = useCallback(() => setLang(p => p === 'zh' ? 'en' : 'zh'), []);
-  const togglePause = useCallback(() => gameState === 'playing' && setIsPaused(p => !p), [gameState]);
+  const togglePause = useCallback(() => {
+    if (gameState !== 'playing' || upgradeModeRef.current) return;  // 升级模式下禁止手动暂停切换 / Block manual pause toggle during upgrade mode
+    setIsPaused(p => !p);
+  }, [gameState]);
   
   // 游戏循环 - 内联简化
   useEffect(() => {
@@ -618,7 +642,7 @@ export default function App() {
           </div>
         )}
         {(gameState === 'start' || gameState === 'gameover' || gameState === 'victory') && <GameOverlays state={gameState} lang={lang} score={score} onStart={startGame} onResume={togglePause} isPhone={isPhone} />}
-        {gameState === 'playing' && isPaused && <GameOverlays state="paused" lang={lang} score={0} onStart={startGame} onResume={togglePause} isPhone={isPhone} />}
+        {gameState === 'playing' && isPaused && !upgradeMode && <GameOverlays state="paused" lang={lang} score={0} onStart={startGame} onResume={togglePause} isPhone={isPhone} />}
       </div>
       <div style={isPhone ? towerPanelPhoneStyle : towerPanelStyle}>
         {TOWER_TYPES.map((tower, idx) => (
@@ -632,13 +656,13 @@ export default function App() {
         {level === 2 && wave >= UPGRADE_UNLOCK_WAVE && (
           <button
             onClick={handleSelectUpgradeMode}
-            disabled={gameState !== 'playing' || isPaused}
-            style={(isPhone ? upgradeModeButtonPhoneStyle : upgradeModeButtonStyle)(upgradeMode, gameState !== 'playing' || isPaused)}
+            disabled={gameState !== 'playing' || (isPaused && !upgradeMode)}
+            style={(isPhone ? upgradeModeButtonPhoneStyle : upgradeModeButtonStyle)(upgradeMode, gameState !== 'playing' || (isPaused && !upgradeMode))}
           >
             <span style={{ fontSize: isPhone ? '22px' : '28px' }}>{upgradeMode ? '✅' : '⬆️'}</span>
             {!isPhone && (
               <span style={{ fontFamily: 'Fredoka One, cursive', fontSize: '13px', color: upgradeMode ? '#FFF' : '#5D4037' }}>
-                {upgradeMode ? 'ON' : 'Upgrade'}
+                {t.upgradeMode}
               </span>
             )}
           </button>
