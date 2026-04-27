@@ -8,7 +8,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 
 // 配置
-import { TILE_SIZE, GRID_WIDTH, GRID_HEIGHT, TOWER_TYPES, INITIAL_GOLD, INITIAL_LIVES, WAVE_SPEED_BONUS, LEAK_SPEED_BONUS, TOWER_SPEED_BONUS, MOSQUITO_SPEED_BONUS, RAT_SPEED_BONUS, BOX_GOLD_REWARD, BOX_SCORE_REWARD, TOTAL_WAVES, ENEMY_SPAWN_INTERVAL, WAVE_TRANSITION_DELAY } from './game/constants';
+import { TILE_SIZE, GRID_WIDTH, GRID_HEIGHT, TOWER_TYPES, INITIAL_GOLD, INITIAL_LIVES, WAVE_SPEED_BONUS, LEAK_SPEED_BONUS, TOWER_SPEED_BONUS, MOSQUITO_SPEED_BONUS, RAT_SPEED_BONUS, BOX_GOLD_REWARD, BOX_SCORE_REWARD, TOTAL_WAVES, ENEMY_SPAWN_INTERVAL, WAVE_TRANSITION_DELAY, TUTORIAL_TRANSITION_DELAY, LEVEL_ANNOUNCEMENT_DURATION, LEVEL1_WAVE } from './game/constants';
 
 // 系统
 import { buildInitialMap, spawnBoxes, initGameState } from './game/mapSystem';
@@ -21,7 +21,7 @@ import { useKeyboardHandler } from './game/keyboard';
 import { renderGame } from './game/renderer';
 
 // 类型
-import type { GameState, Language, Enemy, GameStateRef } from './game/types';
+import type { GameState, Language, Enemy, GameStateRef, Level, TutorialStep } from './game/types';
 
 // 国际化
 import { TEXT } from './game/i18n';
@@ -29,9 +29,10 @@ import { TEXT } from './game/i18n';
 // UI
 import HUD from './game/components/HUD';
 import GameOverlays from './game/components/GameOverlays';
+import { TutorialGuide } from './game/components';
 
 // 样式
-import { containerStyle, titleStyle, canvasWrapperStyle, canvasStyle, towerPanelStyle, towerButtonStyle, towerPanelPhoneStyle, towerButtonPhoneStyle } from './game/styles';
+import { containerStyle, titleStyle, canvasWrapperStyle, canvasStyle, towerPanelStyle, towerButtonStyle, towerPanelPhoneStyle, towerButtonPhoneStyle, levelAnnouncementOverlay, levelAnnouncementSubtitle } from './game/styles';
 
 // 响应式 & 触控
 import { useResponsiveScale } from './game/responsive';
@@ -53,15 +54,23 @@ export default function App() {
   const [selectedTowerType, setSelectedTowerType] = useState(-1);
   const [isPaused, setIsPaused] = useState(false);
   const [pathUnlockNotification, setPathUnlockNotification] = useState<{ name: string; color: string } | null>(null);
+  const [level, setLevel] = useState<Level>(1);
+  const [tutorialStep, setTutorialStep] = useState<TutorialStep>(0);
+  const [levelAnnouncement, setLevelAnnouncement] = useState<{ text: string; subtitle?: string } | null>(null);
   
   const t = TEXT(lang);
   const gameRef = useRef<GameStateRef>(initGameState([], [], [], [], []));
   const shakeRef = useRef<ShakeState>(createShakeState());
   const selectedTowerRef = useRef(selectedTowerType);
   const goldRef = useRef(gold);
+  const levelRef = useRef(level);
+  const tutorialStepRef = useRef(tutorialStep);
+  const langRef = useRef(lang);
+  const tRef = useRef(t);
   
   selectedTowerRef.current = selectedTowerType;
   goldRef.current = gold;
+  tutorialStepRef.current = tutorialStep;
   
   // 响应式适配 / Responsive adaptation
   const { isPhone, isTablet } = useResponsiveScale();
@@ -80,7 +89,38 @@ export default function App() {
       }
     }
   }, [wave]);
-  
+
+  // 关卡公告自动消失 / Auto-dismiss level announcement
+  useEffect(() => {
+    if (levelAnnouncement) {
+      const timer = setTimeout(() => setLevelAnnouncement(null), LEVEL_ANNOUNCEMENT_DURATION);
+      return () => clearTimeout(timer);
+    }
+  }, [levelAnnouncement]);
+
+  // Tutorial step 4: start Level 1 wave after "Ready!" delay
+  useEffect(() => {
+    if (tutorialStep === 4 && level === 1) {
+      const timer = setTimeout(() => {
+        const level1EnemyTypes: number[] = [];
+        for (const group of LEVEL1_WAVE) {
+          for (let i = 0; i < group.count; i++) {
+            level1EnemyTypes.push(group.type);
+          }
+        }
+        // Shuffle
+        for (let i = level1EnemyTypes.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [level1EnemyTypes[i], level1EnemyTypes[j]] = [level1EnemyTypes[j], level1EnemyTypes[i]];
+        }
+        gameRef.current.enemiesToSpawn = level1EnemyTypes;
+        gameRef.current.enemySpawnTimer = 0;
+        gameRef.current.waveInProgress = true;
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [tutorialStep, level]);
+
   // 回调
   const startWave = useCallback((waveNum: number) => {
     gameRef.current.enemiesToSpawn = createWave(waveNum);
@@ -96,13 +136,13 @@ export default function App() {
     gameRef.current = initGameState(map, path, paths, pathIds, boxes);
     shakeRef.current = createShakeState();
     setGold(INITIAL_GOLD); setLives(INITIAL_LIVES); setScore(0); setWave(1);
-    setSelectedTowerType(-1); setIsPaused(false); setGameState('playing');
-    setPathUnlockNotification(null);  // 清除之前的路径解锁提示
-    // 开始第1波
-    gameRef.current.enemiesToSpawn = createWave(1);
-    gameRef.current.enemySpawnTimer = 0;
-    gameRef.current.waveInProgress = true;
-  }, []);
+    setSelectedTowerType(-1); setIsPaused(false); 
+    setPathUnlockNotification(null);
+    setLevel(1); setTutorialStep(1);
+    setLevelAnnouncement({ text: t.level1Announcement });
+    setGameState('playing');
+    // Do NOT start wave yet — wait for tutorial completion (step 4 timeout)
+  }, [t]);
   
   const handleCanvasClick = useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
     if (gameState !== 'playing') return;
@@ -118,8 +158,10 @@ export default function App() {
     const boxIdx = state.boxes.findIndex(b => b.x === tileX && b.y === tileY);
     if (boxIdx !== -1) {
       state.boxes.splice(boxIdx, 1); state.map[tileY][tileX] = 0;
-      setGold(g => g + BOX_GOLD_REWARD); setScore(s => s + BOX_SCORE_REWARD);
-      spawnBreakBoxParticles(state, tileX, tileY); return;
+      setGold(g => g + BOX_GOLD_REWARD); if (level === 2) setScore(s => s + BOX_SCORE_REWARD);
+      spawnBreakBoxParticles(state, tileX, tileY);
+      if (tutorialStep === 1) setTutorialStep(2);
+      return;
     }
     
     if (selectedTowerType >= 0 && tileX >= 0 && tileX < GRID_WIDTH && tileY >= 0 && tileY < GRID_HEIGHT && state.map[tileY][tileX] === 0) {
@@ -128,9 +170,10 @@ export default function App() {
         setGold(g => g - towerType.cost);
         state.towers.push({ x: tileX * TILE_SIZE + TILE_SIZE/2, y: tileY * TILE_SIZE + TILE_SIZE/2, type: selectedTowerType, lastAttack: 0, angle: 0 });
         state.map[tileY][tileX] = 4; spawnPlaceTowerParticles(state, tileX, tileY);
+        if (tutorialStep === 3) setTutorialStep(4);
       }
     }
-  }, [gameState, selectedTowerType, gold]);
+  }, [gameState, selectedTowerType, gold, tutorialStep, level]);
   
   const handleCanvasHover = useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current!;
@@ -144,7 +187,10 @@ export default function App() {
     };
   }, []);
   
-  const handleSelectTower = useCallback((type: number) => setSelectedTowerType(p => p === type ? -1 : type), []);
+  const handleSelectTower = useCallback((type: number) => {
+    setSelectedTowerType(p => p === type ? -1 : type);
+    if (tutorialStep === 2 && selectedTowerType !== type) setTutorialStep(3);
+  }, [tutorialStep, selectedTowerType]);
   const toggleLang = useCallback(() => setLang(p => p === 'zh' ? 'en' : 'zh'), []);
   const togglePause = useCallback(() => gameState === 'playing' && setIsPaused(p => !p), [gameState]);
   
@@ -155,9 +201,14 @@ export default function App() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     
+    levelRef.current = level;
+    langRef.current = lang;
+    tRef.current = t;
+    tutorialStepRef.current = tutorialStep;
+    
     const onDamageEnemy = (enemy: Enemy) => {
       const { gold: g, score: s } = calcKillReward(enemy);
-      setGold(o => o + g); setScore(o => o + s);
+      setGold(o => o + g); if (levelRef.current === 2) setScore(o => o + s);
       spawnKillEnemyParticles(gameRef.current, enemy);
       const idx = gameRef.current.enemies.indexOf(enemy);
       if (idx !== -1) gameRef.current.enemies.splice(idx, 1);
@@ -183,33 +234,62 @@ export default function App() {
       if (state.waveInProgress && state.enemiesToSpawn.length === 0 && state.enemies.length === 0) {
         state.waveInProgress = false;
         
-        // 检查路径解锁
-        const nextWave = wave + 1;
-        if (PATH_UNLOCK_WAVES[nextWave]) {
-          const unlockConfig = PATH_UNLOCK_WAVES[nextWave];
-          if (!state.unlockedPaths.includes(unlockConfig.id)) {
-            state.unlockedPaths.push(unlockConfig.id);
-            state.pathUnlockNotifications.push({ pathId: unlockConfig.id, wave: nextWave });
-          }
+        // Level 1 completion detection - fires when all enemies cleared in tutorial
+        if (levelRef.current === 1 && tutorialStepRef.current === 4) {
+          setTutorialStep(0);
+          setLevelAnnouncement({ text: tRef.current.level1Complete });
+          
+          setTimeout(() => {
+            // Full reset for Level 2
+            const { map, path, paths, pathIds } = buildInitialMap();
+            const boxes = spawnBoxes(map);
+            gameRef.current = initGameState(map, path, paths, pathIds, boxes);
+            shakeRef.current = createShakeState();
+            setGold(INITIAL_GOLD); setLives(INITIAL_LIVES); setScore(0); setWave(1);
+            setSelectedTowerType(-1); setIsPaused(false); setGameState('playing');
+            setPathUnlockNotification(null);
+            setLevel(2);
+            setTutorialStep(0);
+            setLevelAnnouncement({ text: tRef.current.level2Announcement, subtitle: tRef.current.level2Subtitle });
+            
+            // Start Level 2 wave 1 normally
+            gameRef.current.enemiesToSpawn = createWave(1);
+            gameRef.current.enemySpawnTimer = 0;
+            gameRef.current.waveInProgress = true;
+          }, TUTORIAL_TRANSITION_DELAY);
+          
+          return; // Skip the rest of the wave completion handling
         }
         
-        setTimeout(() => { 
-          if (gameState === 'playing') {
-            setWave(n => { 
-              const w = n + 1; 
-              if (w > TOTAL_WAVES) setGameState('victory'); 
-              else startWave(w); 
-              return w; 
-            }); 
+        if (levelRef.current !== 1) {
+          // 检查路径解锁
+          const nextWave = wave + 1;
+          if (PATH_UNLOCK_WAVES[nextWave]) {
+            const unlockConfig = PATH_UNLOCK_WAVES[nextWave];
+            if (!state.unlockedPaths.includes(unlockConfig.id)) {
+              state.unlockedPaths.push(unlockConfig.id);
+              state.pathUnlockNotifications.push({ pathId: unlockConfig.id, wave: nextWave });
+            }
           }
-        }, WAVE_TRANSITION_DELAY);
+          
+          setTimeout(() => { 
+            if (gameState === 'playing') {
+              setWave(n => { 
+                const w = n + 1; 
+                if (w > TOTAL_WAVES) setGameState('victory'); 
+                else startWave(w); 
+                return w; 
+              }); 
+            }
+          }, WAVE_TRANSITION_DELAY);
+        }
       }
     };
     
     const render = () => {
       const shake = applyShake(shakeRef.current);
       ctx.setTransform(1, 0, 0, 1, shake.offsetX, shake.offsetY);
-      renderGame(ctx, gameRef.current, gameRef.current.hoverTile, selectedTowerRef.current, goldRef.current);
+      renderGame(ctx, gameRef.current, gameRef.current.hoverTile, selectedTowerRef.current, goldRef.current, tutorialStepRef.current);
     };
     
     let animationId = requestAnimationFrame(function loop(t) { update(t); render(); animationId = requestAnimationFrame(loop); });
@@ -224,9 +304,20 @@ export default function App() {
   return (
     <div style={containerStyle}>
       <h1 style={{ ...titleStyle, fontSize: isPhone ? '24px' : isTablet ? '36px' : '48px' }}>{t.title}</h1>
-      <HUD wave={wave} gold={gold} lives={lives} score={score} towerCount={gameRef.current.towers.length} enemySpeedMultiplier={enemySpeedMultiplier} lang={lang} onToggleLang={toggleLang} onTogglePause={togglePause} isPaused={isPaused} isPhone={isPhone} />
+      <HUD wave={wave} level={level} gold={gold} lives={lives} score={score} towerCount={gameRef.current.towers.length} enemySpeedMultiplier={enemySpeedMultiplier} lang={lang} onToggleLang={toggleLang} onTogglePause={togglePause} isPaused={isPaused} isPhone={isPhone} />
       <div style={canvasWrapperStyle}>
         <canvas ref={canvasRef} width={GRID_WIDTH * TILE_SIZE} height={GRID_HEIGHT * TILE_SIZE} onPointerDown={handleCanvasClick} onPointerMove={handleCanvasHover} style={canvasStyle} />
+        {/* 教程向导 / Tutorial guide */}
+        <TutorialGuide step={tutorialStep} lang={lang} level={level} />
+        {/* 关卡公告 / Level announcement */}
+        {levelAnnouncement && (
+          <div style={levelAnnouncementOverlay}>
+            <div>{levelAnnouncement.text}</div>
+            {levelAnnouncement.subtitle && (
+              <div style={levelAnnouncementSubtitle}>{levelAnnouncement.subtitle}</div>
+            )}
+          </div>
+        )}
         {/* 路径解锁提示 */}
         {pathUnlockNotification && (
           <div style={{

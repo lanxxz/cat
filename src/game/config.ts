@@ -7,7 +7,7 @@
  * @deprecated Use constants.ts and types.ts instead
  */
 
-export type { GameState, Language, Tower, Enemy, Projectile, Particle, Box, Position, WaveData, GameStateRef } from './types';
+export type { GameState, Language, Tower, Enemy, Projectile, Particle, Box, Position, WaveData, GameStateRef, Level, TutorialStep } from './types';
 
 export {
   TILE_SIZE,
@@ -35,7 +35,11 @@ export {
   WAVE_SCALE_FACTOR,
   SPEED_SCORE_MULTIPLIER,
   KILL_SCORE_MULTIPLIER,
-  ENEMY_SPAWN_INTERVAL
+  ENEMY_SPAWN_INTERVAL,
+  LEVEL1_ENEMY_COUNT,
+  LEVEL1_WAVE,
+  TUTORIAL_TRANSITION_DELAY,
+  LEVEL_ANNOUNCEMENT_DURATION
 } from './constants';
 
 export type { TowerTypeConfig, EnemyTypeConfig } from './constants';

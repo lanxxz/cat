@@ -8,6 +8,12 @@
 /** 游戏状态 / Game state */
 export type GameState = 'start' | 'playing' | 'paused' | 'gameover' | 'victory';
 
+/** 游戏关卡 / Game level */
+export type Level = 1 | 2;
+
+/** 教程步骤 / Tutorial step */
+export type TutorialStep = 0 | 1 | 2 | 3 | 4;
+
 /** 语言类型 / Language type */
 export type Language = 'zh' | 'en';
 

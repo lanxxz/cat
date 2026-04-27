@@ -15,6 +15,7 @@
  * 7. Base (tuna can) / 基地（金枪鱼罐头）
  * 8. Particles / 粒子
  * 9. Hover preview / 悬停预览
+ * 10. Tutorial highlights / 教程高亮
  */
 
 import { renderMap, renderPath, renderBoxes } from './renderMap';
@@ -23,6 +24,7 @@ import { renderEnemies } from './renderEnemy';
 import { renderProjectiles } from './renderProjectile';
 import { renderBase, renderParticles } from './renderEffects';
 import { renderHoverPreview } from './renderHover';
+import { renderTutorialHighlights } from './tutorial';
 import type { Tower, Enemy, Projectile, Particle, Box } from '../types';
 
 /**
@@ -47,7 +49,8 @@ export function renderGame(
   },
   hoverTile: { x: number; y: number },
   selectedTowerType: number,
-  gold: number
+  gold: number,
+  tutorialStep: number = 0
 ): void {
   // 1. 地图 / Map
   renderMap(ctx, state.map);
@@ -77,6 +80,9 @@ export function renderGame(
   
   // 9. 悬停预览 / Hover preview
   renderHoverPreview(ctx, hoverTile, selectedTowerType, state.map, gold);
+  
+  // 10. 教程高亮 / Tutorial highlights
+  renderTutorialHighlights(ctx, { map: state.map, boxes: state.boxes }, tutorialStep);
 }
 
 export default renderGame;

@@ -390,3 +390,79 @@ export const hudSpeedPhoneStyle: React.CSSProperties = {
   whiteSpace: 'nowrap',
   fontSize: '11px'
 };
+
+/**
+ * ============================================
+ * TUTORIAL & ANNOUNCEMENT STYLES / 教程和公告样式
+ * ============================================
+ */
+
+/** Tutorial overlay container - semi-transparent canvas overlay */
+export const tutorialOverlayContainer: React.CSSProperties = {
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  width: '100%',
+  height: '100%',
+  background: 'rgba(0, 0, 0, 0.15)',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderRadius: '14px',
+  zIndex: 90,
+  pointerEvents: 'none'
+};
+
+/** Tutorial text box - positioned instruction with pulsing animation */
+export const tutorialTextBox: React.CSSProperties = {
+  background: 'rgba(255, 255, 255, 0.95)',
+  padding: '16px 28px',
+  borderRadius: '16px',
+  border: '3px solid #FFB6C1',
+  fontFamily: 'Nunito, sans-serif',
+  fontSize: '18px',
+  fontWeight: 700,
+  color: '#5D4037',
+  boxShadow: '0 6px 24px rgba(255, 107, 157, 0.3)',
+  textAlign: 'center',
+  animation: 'tutorialBounce 1s ease-in-out infinite',
+  maxWidth: '400px',
+  pointerEvents: 'none'
+};
+
+/** Tutorial arrow - pointing indicator */
+export const tutorialArrow: React.CSSProperties = {
+  fontSize: '32px',
+  animation: 'tutorialBounce 0.8s ease-in-out infinite',
+  marginTop: '8px'
+};
+
+/** Level announcement overlay - centered big text */
+export const levelAnnouncementOverlay: React.CSSProperties = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  backgroundColor: '#FFB6C1',
+  color: 'white',
+  padding: '20px 40px',
+  borderRadius: '16px',
+  fontSize: '28px',
+  fontWeight: 'bold',
+  fontFamily: 'Fredoka One, cursive',
+  boxShadow: '0 6px 30px rgba(255, 107, 157, 0.4)',
+  textAlign: 'center',
+  animation: 'tutorialBounce 0.6s ease-out',
+  zIndex: 100,
+  pointerEvents: 'none'
+};
+
+/** Level announcement subtitle */
+export const levelAnnouncementSubtitle: React.CSSProperties = {
+  fontSize: '18px',
+  fontFamily: 'Nunito, sans-serif',
+  fontWeight: 600,
+  marginTop: '8px',
+  color: '#FFF8E7'
+};

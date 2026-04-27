@@ -25,6 +25,7 @@ import {
 
 interface HUDProps {
   wave: number;
+  level?: number;
   gold: number;
   lives: number;
   score: number;
@@ -42,8 +43,10 @@ interface HUDProps {
  * 
  * Displays: Wave, Gold, Lives, Score, Tower Count, Enemy Speed, Language Toggle
  * 显示: 波次、金币、生命、分数、猫咪数量、敌人速度、语言切换
+ * 
+ * Note: level prop is intentionally unused - scaffolding for multi-level system
  */
-export function HUD({ wave, gold, lives, score, towerCount, enemySpeedMultiplier, lang, onToggleLang, onTogglePause, isPaused, isPhone = false }: HUDProps) {
+export function HUD({ wave, level: _level, gold, lives, score, towerCount, enemySpeedMultiplier, lang, onToggleLang, onTogglePause, isPaused, isPhone = false }: HUDProps) {
   const t = TEXT(lang);
   
   const containerStyle = isPhone ? hudPhoneStyle : hudContainerStyle;

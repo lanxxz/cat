@@ -8,3 +8,4 @@
 export { HUD } from './HUD';
 export { TowerPanel } from './TowerPanel';
 export { StartOverlay, Overlay } from './Overlay';
+export { default as TutorialGuide } from './TutorialGuide';

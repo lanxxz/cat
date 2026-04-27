@@ -37,6 +37,12 @@ body {
   100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
 }
 
+/* 教程脉冲动画 */
+@keyframes tutorialBounce {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  50% { transform: translate(-50%, -50%) scale(1.05); opacity: 0.85; }
+}
+
 /* ============================================
  * RESPONSIVE STYLES / 响应式样式
  * ============================================ */

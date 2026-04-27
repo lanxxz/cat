@@ -52,6 +52,9 @@ export const BOX_SCORE_REWARD = 10;
 /** 敌人生成间隔（帧）/ Enemy spawn interval in frames */
 export const ENEMY_SPAWN_INTERVAL = 60;
 
+/** Level 1 敌人数量 / Level 1 enemy count */
+export const LEVEL1_ENEMY_COUNT = 3;
+
 /** 粒子效果数量 - 打破纸箱 / Particle count - breaking box */
 export const PARTICLE_COUNT_BREAK_BOX = 10;
 
@@ -72,6 +75,12 @@ export const PARTICLE_GRAVITY = 0.2;
 
 /** 波次间隔延迟（毫秒）/ Wave transition delay in ms */
 export const WAVE_TRANSITION_DELAY = 1000;
+
+/** 教程过渡延迟（毫秒）/ Tutorial transition delay in ms */
+export const TUTORIAL_TRANSITION_DELAY = 2000;
+
+/** 关卡播报持续时间（毫秒）/ Level announcement duration in ms */
+export const LEVEL_ANNOUNCEMENT_DURATION = 2500;
 
 /** 
  * ============================================
@@ -363,6 +372,9 @@ export const BASE_WAVES: WaveData[][] = [
   [{ type: 0, count: 12 }, { type: 1, count: 8 }, { type: 2, count: 8 }, { type: 3, count: 5 }],  // Wave 14
   [{ type: 0, count: 15 }, { type: 1, count: 10 }, { type: 2, count: 10 }, { type: 3, count: 6 }] // Wave 15: Final
 ];
+
+/** Level 1 波次数据（未缩放）/ Level 1 wave data (unscaled) */
+export const LEVEL1_WAVE: WaveData[] = [{ type: 0, count: 3 }];
 
 /**
  * 每波敌人数量缩放系数 / Enemy count scaling per wave
