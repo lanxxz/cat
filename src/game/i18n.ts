@@ -1,6 +1,24 @@
-// Game texts - Bilingual (Chinese & English)
+/**
+ * Internationalization (i18n) / 国际化
+ * 
+ * Centralized text resources for bilingual support (Chinese/English).
+ * 集中管理的游戏文本资源，支持中英文切换。
+ * 
+ * Usage / 用法:
+ *   import { TEXT } from './i18n';
+ *   const t = TEXT(lang);  // lang: 'zh' | 'en'
+ *   t.wave  // "波次" or "Wave"
+ * 
+ * @module i18n
+ */
+
+// Language type / 语言类型
 export type Language = 'zh' | 'en';
 
+/**
+ * Text content for both languages / 两种语言的文本内容
+ * Structure: { zh: {...}, en: {...} }
+ */
 export const TEXTS = {
   zh: {
     title: '🐱 萌新防御 🥫',
@@ -78,9 +96,23 @@ export const TEXTS = {
   },
 };
 
+/**
+ * Get text function / 获取文本函数
+ * Returns the TEXTS object for the specified language.
+ * 根据指定语言返回文本对象。
+ * 
+ * @param lang - Language code ('zh' or 'en')
+ * @returns TEXTS object for the language
+ */
 export const TEXT = (lang: Language) => TEXTS[lang];
 
-// Enemy types with new enemies
+/**
+ * Enemy translations for debug/info panels / 敌人翻译（用于调试/信息面板）
+ * Contains base enemy stats for display purposes.
+ * 包含敌人基础属性，用于显示。
+ * 
+ * @deprecated Use ENEMY_TYPES from constants.ts for actual game balance
+ */
 export const ENEMY_TRANSLATIONS = {
   zh: [
     { name: 'Cucumber', nameZh: '黄瓜', health: 30, speed: 1, reward: 10 },
