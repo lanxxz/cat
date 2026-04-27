@@ -32,7 +32,7 @@ export const GRID_HEIGHT = 8;
 export const TOTAL_WAVES = 15;
 
 /** 初始金币 / Starting gold */
-export const INITIAL_GOLD = 100;
+export const INITIAL_GOLD = 200;
 
 /** 初始生命值 / Starting lives */
 export const INITIAL_LIVES = 10;
@@ -109,8 +109,8 @@ export const RAT_SPEED_BONUS = 1.0;
  * ============================================
  */
 
-/** 每只猫奖励加成 / Reward bonus per tower (+2%) */
-export const TOWER_REWARD_BONUS = 0.02;
+/** 每只猫奖励加成 (+4%) / Reward bonus per tower */
+export const TOWER_REWARD_BONUS = 0.04;
 
 /** 速度奖励分数计算系数 / Speed bonus score multiplier */
 export const SPEED_SCORE_MULTIPLIER = 10;
@@ -201,10 +201,10 @@ export interface EnemyTypeConfig {
  * 3: 🐀 Rat - 老鼠 / 中速中血量 (wave 10+)
  */
 export const ENEMY_TYPES: EnemyTypeConfig[] = [
-  { name: 'Cucumber', health: 30, speed: 1, reward: 10, color: '#7CB342', emoji: '🥒' },
-  { name: 'Vacuum', health: 180, speed: 0.8, reward: 25, color: '#607D8B', emoji: '🧹' },
-  { name: 'Mosquito', health: 30, speed: 3, reward: 15, color: '#37474F', emoji: '🦟' },
-  { name: 'Rat', health: 200, speed: 1.5, reward: 20, color: '#8D6E63', emoji: '🐀' }
+  { name: 'Cucumber', health: 30, speed: 1, reward: 20, color: '#7CB342', emoji: '🥒' },
+  { name: 'Vacuum', health: 180, speed: 0.8, reward: 35, color: '#607D8B', emoji: '🧹' },
+  { name: 'Mosquito', health: 30, speed: 3, reward: 20, color: '#37474F', emoji: '🦟' },
+  { name: 'Rat', health: 200, speed: 1.5, reward: 30, color: '#8D6E63', emoji: '🐀' }
 ];
 
 /** 

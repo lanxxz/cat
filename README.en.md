@@ -16,12 +16,12 @@ Cute cats defend the precious golden tuna can! But cucumbers, vacuums, mosquitoe
 
 ### 👾 Enemies
 
-| Enemy | Health | Speed | First Appears |
-|---|---|---|---|
-| 🥒 Cucumber | 30 | 1.0 | Wave 1 |
-| 🧹 Vacuum | 240 | 0.8 | Wave 3 |
-| 🦟 Mosquito | 30 | 3.0 | Wave 5 |
-| 🐀 Rat | 300 | 1.5 | Wave 10 |
+| Enemy | Health | Speed | Base Reward | First Appears |
+|---|---|---|---|---|
+| 🥒 Cucumber | 30 | 1.0 | 20g | Wave 1 |
+| 🧹 Vacuum | 180 | 0.8 | 35g | Wave 3 |
+| 🦟 Mosquito | 30 | 3.0 | 20g | Wave 5 |
+| 🐀 Rat | 200 | 1.5 | 30g | Wave 10 |
 
 ### 🎯 Goal
 
@@ -33,7 +33,7 @@ Cute cats defend the precious golden tuna can! But cucumbers, vacuums, mosquitoe
 
 - Click brown boxes to break them for building space (+5g, +10pts)
 - Mix different tower types strategically
-- More cats = faster enemies (+2%/cat), but higher kill rewards
+- More cats = faster enemies (+2%/cat), but higher kill rewards (+4%/cat)
 - Mosquitoes add +50% speed, rats add +100%
 
 ## 🛠️ Tech Stack
