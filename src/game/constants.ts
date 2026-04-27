@@ -37,7 +37,12 @@ export const INITIAL_GOLD = 200;
 /** 初始生命值 / Starting lives */
 export const INITIAL_LIVES = 10;
 
-/** 玩家生命值上限 / Maximum lives player can have */
+/** 
+ * 玩家生命值上限 / Maximum lives player can have 
+ * 
+ * @deprecated 未使用 - 生命值上限逻辑未使用此常量。
+ * Unused - max lives logic does not reference this constant.
+ */
 export const MAX_LIVES = 10;
 
 /** 纸箱数量 / Number of box obstacles */
@@ -52,7 +57,12 @@ export const BOX_SCORE_REWARD = 10;
 /** 敌人生成间隔（帧）/ Enemy spawn interval in frames */
 export const ENEMY_SPAWN_INTERVAL = 60;
 
-/** Level 1 敌人数量 / Level 1 enemy count */
+/** 
+ * Level 1 敌人数量 / Level 1 enemy count 
+ * 
+ * @deprecated 未使用 - Level 1 波次数据直接定义在 LEVEL1_WAVE 中。
+ * Unused - Level 1 wave data is directly defined in LEVEL1_WAVE.
+ */
 export const LEVEL1_ENEMY_COUNT = 3;
 
 /** 粒子效果数量 - 打破纸箱 / Particle count - breaking box */
@@ -70,7 +80,12 @@ export const PARTICLE_COUNT_UPGRADE = 20;
 /** 升级光环持续时间（帧）/ Upgrade glow duration in frames */
 export const UPGRADE_GLOW_DURATION = 30;
 
-/** 敌人摆动动画速度 / Enemy wobble animation speed */
+/** 
+ * 敌人摆动动画速度 / Enemy wobble animation speed 
+ * 
+ * @deprecated 未使用 - 摆动动画增量硬编码在 moveEnemies()（combatSystem.ts）中。
+ * Unused - wobble increment is hardcoded in moveEnemies() (combatSystem.ts).
+ */
 export const ENEMY_WOBBLE_SPEED = 0.2;
 
 /** 投射物生命周期（帧）/ Projectile life in frames */
@@ -121,7 +136,12 @@ export const TOWER_REWARD_BONUS = 0.03;
 /** 速度奖励分数计算系数 / Speed bonus score multiplier */
 export const SPEED_SCORE_MULTIPLIER = 10;
 
-/** 击杀分数倍率 / Kill score multiplier */
+/** 
+ * 击杀分数倍率 / Kill score multiplier 
+ * 
+ * @deprecated 未使用 - calcKillReward()（combatSystem.ts）使用硬编码数值 10 而非此常量。
+ * Unused - calcKillReward() in combatSystem.ts uses hardcoded value 10 instead.
+ */
 export const KILL_SCORE_MULTIPLIER = 10;
 
 /** 

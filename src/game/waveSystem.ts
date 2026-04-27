@@ -10,6 +10,10 @@ import { ENEMY_TYPES, WAVES, WAVE_SPEED_BONUS, LEAK_SPEED_BONUS, TOWER_SPEED_BON
 
 /**
  * 创建敌人 / Spawn enemy
+ * 
+ * @deprecated 未使用 - combatSystem.ts 中的 spawnEnemy 函数替代了此功能。保留供参考。
+ * Unused - replaced by spawnEnemy() in combatSystem.ts. Kept for reference.
+ * 
  * @param type - 敌人类型索引
  * @param path - 路径数组（多路径）
  * @param pathId - 路径ID
@@ -84,6 +88,10 @@ export function startWave(waveNum: number): number[] {
 
 /**
  * 处理敌人生成 / Handle enemy spawning
+ * 
+ * @deprecated 未使用 - 游戏循环在 useGameLoop.ts 中直接使用 spawnEnemy()（来自 combatSystem.ts）。
+ * Unused - game loop uses spawnEnemy() from combatSystem.ts directly.
+ * 
  * @param enemiesToSpawn - 待生成队列
  * @param timer - 生成计时器
  * @param interval - 生成间隔
@@ -111,6 +119,10 @@ export function spawnEnemyIfNeeded(
 
 /**
  * 计算击杀得分 / Calculate kill score
+ * 
+ * @deprecated 未使用 - combatSystem.ts 中的同名函数是实际使用版本。此副本已废弃。
+ * Unused - duplicate function in combatSystem.ts is the live version.
+ * 
  * @param enemy - 敌人
  * @returns { gold, score }
  */

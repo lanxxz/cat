@@ -29,6 +29,9 @@ interface StartOverlayProps {
 /**
  * 游戏开始界面 / Game Start Screen
  * 
+ * @deprecated 未使用 - GameOverlays.tsx 组件替代了此功能，处理所有 overlay 状态。
+ * Unused - GameOverlays.tsx handles all overlay states instead.
+ * 
  * Shows game title, instructions, and start button.
  * 显示游戏标题、说明和开始按钮。
  */
@@ -78,8 +81,11 @@ interface OverlayProps {
 /**
  * 游戏结束/胜利覆盖层 / Game Over/Victory Overlay
  * 
+ * @deprecated 未使用 - GameOverlays.tsx 组件替代了此功能，处理所有 overlay 状态。
+ * Unused - GameOverlays.tsx handles all overlay states instead.
+ * 
  * Shows final score and replay button.
- * 显示最终分数和重玩按钮。
+ * 显示最终得分和重玩按钮。
  */
 export function Overlay({ title, subtitle, score, buttonText, onButtonClick, lang }: OverlayProps) {
   const t = TEXT(lang);

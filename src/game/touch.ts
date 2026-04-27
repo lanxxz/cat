@@ -1,6 +1,9 @@
 /**
  * Touch Interaction Hook / 触控交互钩子
  * 
+ * @deprecated 未使用 - App.tsx 直接使用内联 onPointerDown/onPointerMove 处理事件。保留供参考。
+ * Unused - App.tsx uses inline onPointerDown/onPointerMove events instead. Kept for reference.
+ * 
  * Provides pointer event handlers with coordinate scaling for both
  * mouse and touch input. Replaces onClick/onMouseMove with unified
  * pointer events that work on all devices.
