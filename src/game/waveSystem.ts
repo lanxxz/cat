@@ -6,7 +6,7 @@
  */
 
 import type { Enemy } from './types';
-import { ENEMY_TYPES, WAVES, WAVE_SPEED_BONUS, LEAK_SPEED_BONUS, TOWER_SPEED_BONUS, MOSQUITO_SPEED_BONUS, RAT_SPEED_BONUS, TOWER_REWARD_BONUS, SPEED_SCORE_MULTIPLIER } from './constants';
+import { ENEMY_TYPES, WAVES, WAVE_SPEED_BONUS, LEAK_SPEED_BONUS, TOWER_SPEED_BONUS, MOSQUITO_SPEED_BONUS, RAT_SPEED_BONUS, TOWER_REWARD_BONUS, SPEED_SCORE_MULTIPLIER, KILL_SCORE_MULTIPLIER } from './constants';
 
 /**
  * 创建敌人 / Spawn enemy
@@ -130,6 +130,6 @@ export function calcKillReward(enemy: Enemy): { gold: number; score: number } {
   const speedBonus = Math.floor(enemy.speed * SPEED_SCORE_MULTIPLIER);
   return {
     gold: enemy.reward,
-    score: (enemy.reward + speedBonus) * 10
+    score: (enemy.reward + speedBonus) * KILL_SCORE_MULTIPLIER
   };
 }

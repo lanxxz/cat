@@ -6,7 +6,7 @@
  */
 
 import type { Enemy, GameStateRef } from './types';
-import { ENEMY_TYPES, TOWER_TYPES, WAVE_SPEED_BONUS, LEAK_SPEED_BONUS, TOWER_SPEED_BONUS, MOSQUITO_SPEED_BONUS, RAT_SPEED_BONUS, TOWER_REWARD_BONUS, SPEED_SCORE_MULTIPLIER, PROJECTILE_LIFE, TILE_SIZE, GRID_WIDTH, GRID_HEIGHT, getTowerStats } from './constants';
+import { ENEMY_TYPES, TOWER_TYPES, WAVE_SPEED_BONUS, LEAK_SPEED_BONUS, TOWER_SPEED_BONUS, MOSQUITO_SPEED_BONUS, RAT_SPEED_BONUS, TOWER_REWARD_BONUS, SPEED_SCORE_MULTIPLIER, KILL_SCORE_MULTIPLIER, ENEMY_WOBBLE_SPEED, PROJECTILE_LIFE, TILE_SIZE, GRID_WIDTH, GRID_HEIGHT, getTowerStats } from './constants';
 
 /**
  * 敌人生成 / Spawn enemy
@@ -48,7 +48,7 @@ export function spawnEnemy(state: GameStateRef, type: number, currentWave: numbe
     reward, 
     pathIndex: 2, 
     pathId: chosenPathId,
-    wobble: Math.random() * 6.28 
+    wobble: Math.random() * Math.PI * 2 
   };
 }
 
@@ -76,7 +76,7 @@ export function moveEnemies(state: GameStateRef, onLeak: () => void): number {
       e.x += (dx / dist) * e.speed;
       e.y += (dy / dist) * e.speed;
     }
-    e.wobble += 0.2;
+    e.wobble += ENEMY_WOBBLE_SPEED;
     
     // 检查是否到达路径终点
     if (e.pathIndex >= path.length) {
@@ -147,5 +147,5 @@ export function updateProjectiles(state: GameStateRef, onDamageEnemy: (e: Enemy)
  */
 export function calcKillReward(enemy: Enemy): { gold: number; score: number } {
   const speedBonus = Math.floor(enemy.speed * SPEED_SCORE_MULTIPLIER);
-  return { gold: enemy.reward, score: (enemy.reward + speedBonus) * 10 };
+  return { gold: enemy.reward, score: (enemy.reward + speedBonus) * KILL_SCORE_MULTIPLIER };
 }

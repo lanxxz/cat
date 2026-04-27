@@ -80,12 +80,7 @@ export const PARTICLE_COUNT_UPGRADE = 20;
 /** 升级光环持续时间（帧）/ Upgrade glow duration in frames */
 export const UPGRADE_GLOW_DURATION = 30;
 
-/** 
- * 敌人摆动动画速度 / Enemy wobble animation speed 
- * 
- * @deprecated 未使用 - 摆动动画增量硬编码在 moveEnemies()（combatSystem.ts）中。
- * Unused - wobble increment is hardcoded in moveEnemies() (combatSystem.ts).
- */
+/** 敌人摆动动画速度 / Enemy wobble animation speed */
 export const ENEMY_WOBBLE_SPEED = 0.2;
 
 /** 投射物生命周期（帧）/ Projectile life in frames */
@@ -136,12 +131,7 @@ export const TOWER_REWARD_BONUS = 0.03;
 /** 速度奖励分数计算系数 / Speed bonus score multiplier */
 export const SPEED_SCORE_MULTIPLIER = 10;
 
-/** 
- * 击杀分数倍率 / Kill score multiplier 
- * 
- * @deprecated 未使用 - calcKillReward()（combatSystem.ts）使用硬编码数值 10 而非此常量。
- * Unused - calcKillReward() in combatSystem.ts uses hardcoded value 10 instead.
- */
+/** 击杀分数倍率 / Kill score multiplier */
 export const KILL_SCORE_MULTIPLIER = 10;
 
 /** 
