@@ -6,21 +6,28 @@
   box-sizing: border-box;
 }
 
+html {
+  /* Prevent iOS from scaling text on rotation */
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
   background: linear-gradient(135deg, #FFF8E7 0%, #FFE4EC 50%, #E8F5E9 100%);
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-family: 'Nunito', sans-serif;
-  overflow: hidden;
+  overflow-x: hidden;
 }
 
 #root {
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
 }
 
 /* 弹跳动画 */
@@ -28,4 +35,32 @@ body {
   0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
   50% { transform: translate(-50%, -50%) scale(1.1); }
   100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+/* ============================================
+ * RESPONSIVE STYLES / 响应式样式
+ * ============================================ */
+
+/* Phone (≤480px) */
+@media (max-width: 480px) {
+  body {
+    overflow-y: auto;
+    justify-content: flex-start;
+    padding-top: 8px;
+    padding-bottom: 60px; /* space for fixed tower panel */
+  }
+
+  /* Make all interactive elements avoid 300ms tap delay */
+  button, canvas {
+    touch-action: manipulation;
+  }
+}
+
+/* Tablet (481px–767px) */
+@media (min-width: 481px) and (max-width: 767px) {
+  body {
+    overflow-y: auto;
+    justify-content: flex-start;
+    padding-top: 12px;
+  }
 }

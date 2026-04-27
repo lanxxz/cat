@@ -16,7 +16,11 @@ import {
   hudValueStyle,
   hudSpeedValueStyle,
   langToggleStyle,
-  pauseButtonStyle
+  pauseButtonStyle,
+  hudPhoneStyle,
+  hudStatBoxPhoneStyle,
+  hudTowerCountPhoneStyle,
+  hudSpeedPhoneStyle,
 } from '../styles';
 
 interface HUDProps {
@@ -30,6 +34,7 @@ interface HUDProps {
   onToggleLang: () => void;
   onTogglePause: () => void;
   isPaused: boolean;
+  isPhone?: boolean;
 }
 
 /**
@@ -38,52 +43,58 @@ interface HUDProps {
  * Displays: Wave, Gold, Lives, Score, Tower Count, Enemy Speed, Language Toggle
  * 显示: 波次、金币、生命、分数、猫咪数量、敌人速度、语言切换
  */
-export function HUD({ wave, gold, lives, score, towerCount, enemySpeedMultiplier, lang, onToggleLang, onTogglePause, isPaused }: HUDProps) {
+export function HUD({ wave, gold, lives, score, towerCount, enemySpeedMultiplier, lang, onToggleLang, onTogglePause, isPaused, isPhone = false }: HUDProps) {
   const t = TEXT(lang);
   
+  const containerStyle = isPhone ? hudPhoneStyle : hudContainerStyle;
+  const statBoxStyle = isPhone ? hudStatBoxPhoneStyle : hudStatBoxStyle;
+  const towerCntStyle = isPhone ? hudTowerCountPhoneStyle : hudTowerCountStyle;
+  const spdStyle = isPhone ? hudSpeedPhoneStyle : hudSpeedStyle;
+  const emojiSize = isPhone ? '14px' : '16px';
+  
   return (
-    <div style={hudContainerStyle}>
+    <div style={containerStyle}>
       {/* 左侧状态 / Left side stats */}
-      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: isPhone ? '3px' : '6px', flexWrap: 'wrap' }}>
         {/* 波次 / Wave */}
-        <div style={hudStatBoxStyle}>
-          <span style={{ fontSize: '16px' }}>🌊</span>
+        <div style={statBoxStyle}>
+          <span style={{ fontSize: emojiSize }}>🌊</span>
           <span>{t.wave}</span>
           <span style={hudValueStyle}>{wave}/{TOTAL_WAVES}</span>
         </div>
         
         {/* 金币 / Gold */}
-        <div style={hudStatBoxStyle}>
-          <span style={{ fontSize: '16px' }}>🪙</span>
+        <div style={statBoxStyle}>
+          <span style={{ fontSize: emojiSize }}>🪙</span>
           <span style={hudValueStyle}>{gold}</span>
         </div>
         
         {/* 生命 / Lives */}
-        <div style={hudStatBoxStyle}>
-          <span style={{ fontSize: '16px' }}>❤️</span>
+        <div style={statBoxStyle}>
+          <span style={{ fontSize: emojiSize }}>❤️</span>
           <span style={hudValueStyle}>{lives}</span>
         </div>
         
         {/* 分数 / Score */}
-        <div style={hudStatBoxStyle}>
-          <span style={{ fontSize: '16px' }}>⭐</span>
+        <div style={statBoxStyle}>
+          <span style={{ fontSize: emojiSize }}>⭐</span>
           <span style={hudValueStyle}>{score}</span>
         </div>
       </div>
       
       {/* 右侧状态 / Right side stats */}
-      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: isPhone ? '3px' : '6px', flexWrap: 'wrap' }}>
         {/* 猫咪数量 / Tower Count */}
-        <div style={hudTowerCountStyle}>
-          <span style={{ fontSize: '14px' }}>🐱</span>
-          <span>{t.towerCount}</span>
+        <div style={towerCntStyle}>
+          <span style={{ fontSize: emojiSize }}>🐱</span>
+          {!isPhone && <span>{t.towerCount}</span>}
           <span style={hudValueStyle}>{towerCount}</span>
         </div>
         
         {/* 敌人速度 / Enemy Speed */}
-        <div style={hudSpeedStyle}>
-          <span style={{ fontSize: '14px' }}>⚡</span>
-          <span>{t.enemySpeed}</span>
+        <div style={spdStyle}>
+          <span style={{ fontSize: emojiSize }}>⚡</span>
+          {!isPhone && <span>{t.enemySpeed}</span>}
           <span style={hudSpeedValueStyle}>{(enemySpeedMultiplier * 100).toFixed(0)}%</span>
         </div>
         

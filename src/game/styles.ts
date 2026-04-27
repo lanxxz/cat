@@ -15,7 +15,10 @@ export const containerStyle: React.CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  gap: '10px'
+  gap: '10px',
+  width: '100%',
+  maxWidth: '768px',
+  padding: '0 4px'
 };
 
 /**
@@ -40,7 +43,9 @@ export const titleStyle: React.CSSProperties = {
  */
 
 export const canvasWrapperStyle: React.CSSProperties = {
-  position: 'relative'
+  position: 'relative',
+  maxWidth: '768px',
+  width: '100%'
 };
 
 export const canvasStyle: React.CSSProperties = {
@@ -49,7 +54,10 @@ export const canvasStyle: React.CSSProperties = {
   boxShadow: '0 10px 30px rgba(255, 107, 157, 0.3), inset 0 0 50px rgba(255, 255, 255, 0.5)',
   cursor: 'crosshair',
   background: '#FFF8E7',
-  display: 'block'
+  display: 'block',
+  width: '100%',
+  height: 'auto',
+  touchAction: 'none'
 };
 
 /**
@@ -114,7 +122,8 @@ export const hudContainerStyle: React.CSSProperties = {
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
-  width: '768px',
+  width: '100%',
+  maxWidth: '768px',
   padding: '10px 16px',
   background: 'linear-gradient(90deg, #FFE4EC, #FFF, #FFE4EC)',
   borderRadius: '16px',
@@ -191,7 +200,8 @@ export const towerPanelStyle: React.CSSProperties = {
   background: 'linear-gradient(180deg, #FFF 0%, #FCE4EC 100%)',
   borderRadius: '20px',
   border: '4px solid #FFB6C1',
-  width: '768px'
+  width: '100%',
+  maxWidth: '768px'
 };
 
 export const towerNameStyle = (selected: boolean): React.CSSProperties => ({
@@ -221,8 +231,8 @@ export const overlayContainerStyle: React.CSSProperties = {
   position: 'absolute',
   top: 0,
   left: 0,
-  width: '768px',
-  height: '512px',
+  width: '100%',
+  height: '100%',
   background: 'rgba(255, 248, 231, 0.95)',
   display: 'flex',
   flexDirection: 'column',
@@ -272,8 +282,8 @@ export const pauseOverlayStyle: React.CSSProperties = {
   position: 'absolute',
   top: 0,
   left: 0,
-  width: '768px',
-  height: '512px',
+  width: '100%',
+  height: '100%',
   background: 'rgba(255, 248, 231, 0.9)',
   display: 'flex',
   flexDirection: 'column',
@@ -281,4 +291,102 @@ export const pauseOverlayStyle: React.CSSProperties = {
   justifyContent: 'center',
   borderRadius: '14px',
   zIndex: 100
+};
+
+/**
+ * ============================================
+ * PHONE-SPECIFIC STYLES / 手机专用样式
+ * ============================================
+ */
+
+/** Tower panel as floating bottom overlay on phone / 手机端浮动底部工具栏 */
+export const towerPanelPhoneStyle: React.CSSProperties = {
+  position: 'fixed',
+  bottom: 0,
+  left: 0,
+  right: 0,
+  display: 'flex',
+  justifyContent: 'center',
+  gap: '8px',
+  padding: '8px 6px',
+  paddingBottom: 'max(8px, env(safe-area-inset-bottom))',
+  background: 'linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(252,228,236,0.95) 100%)',
+  borderTop: '3px solid #FFB6C1',
+  borderTopLeftRadius: '14px',
+  borderTopRightRadius: '14px',
+  zIndex: 200,
+  backdropFilter: 'blur(8px)'
+};
+
+/** Compact tower button for phone / 手机端紧凑按钮 */
+export const towerButtonPhoneStyle = ({ selected, disabled }: ButtonStyleParams): React.CSSProperties => ({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  padding: '6px 12px',
+  background: selected
+    ? 'linear-gradient(180deg, #FF80AB 0%, #FF4081 100%)'
+    : 'linear-gradient(180deg, #FFF 0%, #F8BBD9 100%)',
+  border: `2px solid ${selected ? '#C51162' : '#FF80AB'}`,
+  borderRadius: '12px',
+  cursor: disabled ? 'not-allowed' : 'pointer',
+  opacity: disabled ? 0.5 : 1,
+  minWidth: '80px',
+  transition: 'all 0.2s ease',
+  fontFamily: 'Nunito, sans-serif'
+});
+
+/** Compact HUD for phone (flex-wrap: 2 rows) / 手机端紧凑HUD */
+export const hudPhoneStyle: React.CSSProperties = {
+  display: 'flex',
+  flexWrap: 'wrap',
+  justifyContent: 'center',
+  alignItems: 'center',
+  width: '100%',
+  maxWidth: '768px',
+  padding: '6px 8px',
+  background: 'linear-gradient(90deg, #FFE4EC, #FFF, #FFE4EC)',
+  borderRadius: '12px',
+  border: '2px solid #FFB6C1',
+  fontFamily: 'Nunito, sans-serif',
+  fontSize: '11px',
+  color: '#5D4037',
+  gap: '4px',
+  rowGap: '4px'
+};
+
+/** Compact stat box for phone / 手机端紧凑状态框 */
+export const hudStatBoxPhoneStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '2px',
+  padding: '4px 6px',
+  background: 'rgba(255,255,255,0.8)',
+  borderRadius: '8px',
+  whiteSpace: 'nowrap',
+  fontSize: '11px'
+};
+
+/** Compact tower count box for phone / 手机端紧凑猫咪计数 */
+export const hudTowerCountPhoneStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '2px',
+  padding: '4px 5px',
+  background: 'rgba(255,182,193,0.5)',
+  borderRadius: '8px',
+  whiteSpace: 'nowrap',
+  fontSize: '11px'
+};
+
+/** Compact speed box for phone / 手机端紧凑速度 */
+export const hudSpeedPhoneStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '2px',
+  padding: '4px 5px',
+  background: 'rgba(255,152,0,0.3)',
+  borderRadius: '8px',
+  whiteSpace: 'nowrap',
+  fontSize: '11px'
 };

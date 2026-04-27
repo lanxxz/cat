@@ -31,7 +31,10 @@ import HUD from './game/components/HUD';
 import GameOverlays from './game/components/GameOverlays';
 
 // 样式
-import { containerStyle, titleStyle, canvasWrapperStyle, canvasStyle, towerPanelStyle, towerButtonStyle } from './game/styles';
+import { containerStyle, titleStyle, canvasWrapperStyle, canvasStyle, towerPanelStyle, towerButtonStyle, towerPanelPhoneStyle, towerButtonPhoneStyle } from './game/styles';
+
+// 响应式 & 触控
+import { useResponsiveScale } from './game/responsive';
 
 // 路径解锁配置
 const PATH_UNLOCK_WAVES: Record<number, { id: number; name: string; color: string }> = {
@@ -59,6 +62,9 @@ export default function App() {
   
   selectedTowerRef.current = selectedTowerType;
   goldRef.current = gold;
+  
+  // 响应式适配 / Responsive adaptation
+  const { isPhone, isTablet } = useResponsiveScale();
   
   // 检查路径解锁提示
   useEffect(() => {
@@ -98,11 +104,15 @@ export default function App() {
     gameRef.current.waveInProgress = true;
   }, []);
   
-  const handleCanvasClick = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
+  const handleCanvasClick = useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
     if (gameState !== 'playing') return;
-    const rect = canvasRef.current!.getBoundingClientRect();
-    const tileX = Math.floor((e.clientX - rect.left) / TILE_SIZE);
-    const tileY = Math.floor((e.clientY - rect.top) / TILE_SIZE);
+    const canvas = canvasRef.current!;
+    const rect = canvas.getBoundingClientRect();
+    // Fix: account for CSS scaling when converting client coordinates to tile indices
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const tileX = Math.floor((e.clientX - rect.left) * scaleX / TILE_SIZE);
+    const tileY = Math.floor((e.clientY - rect.top) * scaleY / TILE_SIZE);
     const state = gameRef.current;
     
     const boxIdx = state.boxes.findIndex(b => b.x === tileX && b.y === tileY);
@@ -122,9 +132,16 @@ export default function App() {
     }
   }, [gameState, selectedTowerType, gold]);
   
-  const handleCanvasHover = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
-    const rect = canvasRef.current!.getBoundingClientRect();
-    gameRef.current.hoverTile = { x: Math.floor((e.clientX - rect.left) / TILE_SIZE), y: Math.floor((e.clientY - rect.top) / TILE_SIZE) };
+  const handleCanvasHover = useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current!;
+    const rect = canvas.getBoundingClientRect();
+    // Fix: account for CSS scaling
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    gameRef.current.hoverTile = {
+      x: Math.floor((e.clientX - rect.left) * scaleX / TILE_SIZE),
+      y: Math.floor((e.clientY - rect.top) * scaleY / TILE_SIZE)
+    };
   }, []);
   
   const handleSelectTower = useCallback((type: number) => setSelectedTowerType(p => p === type ? -1 : type), []);
@@ -206,10 +223,10 @@ export default function App() {
   
   return (
     <div style={containerStyle}>
-      <h1 style={titleStyle}>{t.title}</h1>
-      <HUD wave={wave} gold={gold} lives={lives} score={score} towerCount={gameRef.current.towers.length} enemySpeedMultiplier={enemySpeedMultiplier} lang={lang} onToggleLang={toggleLang} onTogglePause={togglePause} isPaused={isPaused} />
+      <h1 style={{ ...titleStyle, fontSize: isPhone ? '24px' : isTablet ? '36px' : '48px' }}>{t.title}</h1>
+      <HUD wave={wave} gold={gold} lives={lives} score={score} towerCount={gameRef.current.towers.length} enemySpeedMultiplier={enemySpeedMultiplier} lang={lang} onToggleLang={toggleLang} onTogglePause={togglePause} isPaused={isPaused} isPhone={isPhone} />
       <div style={canvasWrapperStyle}>
-        <canvas ref={canvasRef} width={GRID_WIDTH * TILE_SIZE} height={GRID_HEIGHT * TILE_SIZE} onClick={handleCanvasClick} onMouseMove={handleCanvasHover} style={canvasStyle} />
+        <canvas ref={canvasRef} width={GRID_WIDTH * TILE_SIZE} height={GRID_HEIGHT * TILE_SIZE} onPointerDown={handleCanvasClick} onPointerMove={handleCanvasHover} style={canvasStyle} />
         {/* 路径解锁提示 */}
         {pathUnlockNotification && (
           <div style={{
@@ -231,15 +248,15 @@ export default function App() {
             🚀 {pathUnlockNotification.name} 路线解锁！
           </div>
         )}
-        {(gameState === 'start' || gameState === 'gameover' || gameState === 'victory') && <GameOverlays state={gameState} lang={lang} score={score} onStart={startGame} onResume={togglePause} />}
-        {gameState === 'playing' && isPaused && <GameOverlays state="paused" lang={lang} score={0} onStart={startGame} onResume={togglePause} />}
+        {(gameState === 'start' || gameState === 'gameover' || gameState === 'victory') && <GameOverlays state={gameState} lang={lang} score={score} onStart={startGame} onResume={togglePause} isPhone={isPhone} />}
+        {gameState === 'playing' && isPaused && <GameOverlays state="paused" lang={lang} score={0} onStart={startGame} onResume={togglePause} isPhone={isPhone} />}
       </div>
-      <div style={towerPanelStyle}>
+      <div style={isPhone ? towerPanelPhoneStyle : towerPanelStyle}>
         {TOWER_TYPES.map((tower, idx) => (
-          <button key={idx} onClick={() => handleSelectTower(idx)} disabled={gold < tower.cost} style={towerButtonStyle({ selected: selectedTowerType === idx, disabled: gold < tower.cost })}>
-            <span style={{ fontSize: '36px', marginBottom: '5px' }}>🐱</span>
-            <span style={{ fontFamily: 'Fredoka One, cursive', fontSize: '14px', color: selectedTowerType === idx ? 'white' : '#5D4037' }}>{t.towerNames?.[idx] || tower.name}</span>
-            <span style={{ fontSize: '16px', color: selectedTowerType === idx ? 'white' : '#FFA000', fontWeight: 800 }}>{tower.cost}</span>
+          <button key={idx} onClick={() => handleSelectTower(idx)} disabled={gold < tower.cost} style={(isPhone ? towerButtonPhoneStyle : towerButtonStyle)({ selected: selectedTowerType === idx, disabled: gold < tower.cost })}>
+            <span style={{ fontSize: isPhone ? '28px' : '36px', marginBottom: isPhone ? '2px' : '5px' }}>🐱</span>
+            {!isPhone && <span style={{ fontFamily: 'Fredoka One, cursive', fontSize: '14px', color: selectedTowerType === idx ? 'white' : '#5D4037' }}>{t.towerNames?.[idx] || tower.name}</span>}
+            <span style={{ fontSize: isPhone ? '14px' : '16px', color: selectedTowerType === idx ? 'white' : '#FFA000', fontWeight: 800 }}>{tower.cost}</span>
           </button>
         ))}
       </div>
