@@ -64,6 +64,7 @@ export default function App() {
   const selectedTowerRef = useRef(selectedTowerType);
   const goldRef = useRef(gold);
   const levelRef = useRef(level);
+  const waveRef = useRef(wave);
   const tutorialStepRef = useRef(tutorialStep);
   const langRef = useRef(lang);
   const tRef = useRef(t);
@@ -202,6 +203,7 @@ export default function App() {
     if (!ctx) return;
     
     levelRef.current = level;
+    waveRef.current = wave;
     langRef.current = lang;
     tRef.current = t;
     tutorialStepRef.current = tutorialStep;
@@ -263,7 +265,7 @@ export default function App() {
         
         if (levelRef.current !== 1) {
           // 检查路径解锁
-          const nextWave = wave + 1;
+          const nextWave = waveRef.current + 1;
           if (PATH_UNLOCK_WAVES[nextWave]) {
             const unlockConfig = PATH_UNLOCK_WAVES[nextWave];
             if (!state.unlockedPaths.includes(unlockConfig.id)) {
@@ -294,7 +296,7 @@ export default function App() {
     
     let animationId = requestAnimationFrame(function loop(t) { update(t); render(); animationId = requestAnimationFrame(loop); });
     return () => cancelAnimationFrame(animationId);
-  }, [gameState, wave, startWave, isPaused]);
+  }, [gameState, wave, startWave, isPaused, level]);
   
   // 键盘
   useKeyboardHandler(gameState, togglePause);

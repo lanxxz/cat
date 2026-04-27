@@ -45,7 +45,10 @@ export const titleStyle: React.CSSProperties = {
 export const canvasWrapperStyle: React.CSSProperties = {
   position: 'relative',
   maxWidth: '768px',
-  width: '100%'
+  width: '100%',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center'
 };
 
 export const canvasStyle: React.CSSProperties = {
