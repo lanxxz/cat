@@ -126,6 +126,7 @@ export default function App() {
         gameRef.current.enemiesToSpawn = level1EnemyTypes;
         gameRef.current.enemySpawnTimer = 0;
         gameRef.current.waveInProgress = true;
+        setTutorialStep(0); // 隐藏教程提示 / Hide tutorial text once enemies start
       }, 1500);
       return () => clearTimeout(timer);
     }
@@ -394,7 +395,7 @@ export default function App() {
         state.waveInProgress = false;
         
         // Level 1 completion detection - fires when all enemies cleared in tutorial
-        if (levelRef.current === 1 && tutorialStepRef.current === 4) {
+        if (levelRef.current === 1) {
           setTutorialStep(0);
           setLevelAnnouncement({ text: tRef.current.level1Complete });
           
@@ -420,29 +421,27 @@ export default function App() {
           
           return; // Skip the rest of the wave completion handling
         }
-        
-        if (levelRef.current !== 1) {
-          // 检查路径解锁
-          const nextWave = waveRef.current + 1;
-          if (PATH_UNLOCK_WAVES[nextWave]) {
-            const unlockConfig = PATH_UNLOCK_WAVES[nextWave];
-            if (!state.unlockedPaths.includes(unlockConfig.id)) {
-              state.unlockedPaths.push(unlockConfig.id);
-              state.pathUnlockNotifications.push({ pathId: unlockConfig.id, wave: nextWave });
-            }
+        // Level 2+ wave completion: check path unlocks and start next wave
+        // 检查路径解锁
+        const nextWave = waveRef.current + 1;
+        if (PATH_UNLOCK_WAVES[nextWave]) {
+          const unlockConfig = PATH_UNLOCK_WAVES[nextWave];
+          if (!state.unlockedPaths.includes(unlockConfig.id)) {
+            state.unlockedPaths.push(unlockConfig.id);
+            state.pathUnlockNotifications.push({ pathId: unlockConfig.id, wave: nextWave });
           }
-          
-          setTimeout(() => { 
-            if (gameState === 'playing') {
-              setWave(n => { 
-                const w = n + 1; 
-                if (w > TOTAL_WAVES) setGameState('victory'); 
-                else startWave(w); 
-                return w; 
-              }); 
-            }
-          }, WAVE_TRANSITION_DELAY);
         }
+        
+        setTimeout(() => { 
+          if (gameState === 'playing') {
+            setWave(n => { 
+              const w = n + 1; 
+              if (w > TOTAL_WAVES) setGameState('victory'); 
+              else startWave(w); 
+              return w; 
+            }); 
+          }
+        }, WAVE_TRANSITION_DELAY);
       }
     };
     
