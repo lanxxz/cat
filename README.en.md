@@ -20,8 +20,8 @@ Cute cats defend the precious golden tuna can! But cucumbers, vacuums, mosquitoe
 |---|---|---|---|---|
 | 🥒 Cucumber | 30 | 1.0 | 20g | Wave 1 |
 | 🧹 Vacuum | 180 | 0.8 | 35g | Wave 3 |
-| 🦟 Mosquito | 30 | 3.0 | 20g | Wave 5 |
-| 🐀 Rat | 200 | 1.5 | 30g | Wave 10 |
+| 🦟 Mosquito | 30 | 3.0 | 40g | Wave 5 |
+| 🐀 Rat | 200 | 1.5 | 50g | Wave 10 |
 
 ### 🎯 Goal
 
