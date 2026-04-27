@@ -74,13 +74,13 @@ export const PROJECTILE_LIFE = 60;
 export const PARTICLE_GRAVITY = 0.2;
 
 /** 波次间隔延迟（毫秒）/ Wave transition delay in ms */
-export const WAVE_TRANSITION_DELAY = 1000;
+export const WAVE_TRANSITION_DELAY = 800;
 
 /** 教程过渡延迟（毫秒）/ Tutorial transition delay in ms */
-export const TUTORIAL_TRANSITION_DELAY = 2000;
+export const TUTORIAL_TRANSITION_DELAY = 1000;
 
 /** 关卡播报持续时间（毫秒）/ Level announcement duration in ms */
-export const LEVEL_ANNOUNCEMENT_DURATION = 2500;
+export const LEVEL_ANNOUNCEMENT_DURATION = 1500;
 
 /** 
  * ============================================
