@@ -47,7 +47,7 @@
 
 ```
 src/
-├── App.tsx                    # 主游戏组件 (177行)
+├── App.tsx                    # 主游戏组件 (344行)
 ├── game/
 │   ├── mapSystem.ts           # 地图初始化
 │   ├── waveSystem.ts          # 波次管理
@@ -58,8 +58,27 @@ src/
 │   ├── types.ts               # 类型定义
 │   ├── i18n.ts                # 国际化 (中/英)
 │   ├── styles.ts               # UI 样式
+│   ├── config.ts              # 游戏配置
+│   ├── responsive.ts          # 响应式适配
+│   ├── touch.ts               # 触摸事件处理
+│   ├── index.ts               # 导出文件
+│   ├── __tests__/             # 测试文件
 │   ├── components/              # UI 组件
+│   │   ├── index.ts           # 导出所有组件
+│   │   ├── HUD.tsx            # 游戏HUD显示
+│   │   ├── TowerPanel.tsx     # 塔板面板
+│   │   ├── Overlay.tsx        # 覆盖层
+│   │   ├── TutorialGuide.tsx  # 教程指南
+│   │   └── GameOverlays.tsx   # 游戏结束叠加层
 │   └── renderer/               # Canvas 渲染器
+│       ├── index.ts            # 导出渲染器
+│       ├── renderMap.ts        # 地图渲染
+│       ├── renderTower.ts      # 塔渲染
+│       ├── renderEnemy.ts      # 敌人渲染
+│       ├── renderProjectile.ts # 投射物渲染
+│       ├── renderHover.ts      # 悬停效果渲染
+│       ├── renderEffects.ts    # 特效渲染
+│       └── tutorial.ts         # 教程渲染
 ```
 
 ## 🚀 快速开始

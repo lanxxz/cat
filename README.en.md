@@ -47,7 +47,7 @@ Cute cats defend the precious golden tuna can! But cucumbers, vacuums, mosquitoe
 
 ```
 src/
-├── App.tsx                    # Main game component (177 lines)
+├── App.tsx                    # Main game component (344 lines)
 ├── game/
 │   ├── mapSystem.ts           # Map initialization
 │   ├── waveSystem.ts          # Wave management
@@ -58,7 +58,13 @@ src/
 │   ├── types.ts               # TypeScript types
 │   ├── i18n.ts               # i18n (Chinese/English)
 │   ├── styles.ts              # UI styles
+│   ├── config.ts              # Game configuration
+│   ├── responsive.ts          # Responsive adaptation
+│   ├── touch.ts               # Touch event handling
+│   ├── index.ts               # Export file
+│   ├── __tests__/             # Test files
 │   ├── components/            # UI components
+│   │   └── HUD.tsx            # Game HUD display
 │   └── renderer/              # Canvas renderer
 ```
 
