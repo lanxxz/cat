@@ -110,7 +110,7 @@ export const RAT_SPEED_BONUS = 1.0;
  */
 
 /** 每只猫奖励加成 (+4%) / Reward bonus per tower */
-export const TOWER_REWARD_BONUS = 0.04;
+export const TOWER_REWARD_BONUS = 0.03;
 
 /** 速度奖励分数计算系数 / Speed bonus score multiplier */
 export const SPEED_SCORE_MULTIPLIER = 10;
@@ -204,7 +204,7 @@ export const ENEMY_TYPES: EnemyTypeConfig[] = [
   { name: 'Cucumber', health: 30, speed: 1, reward: 20, color: '#7CB342', emoji: '🥒' },
   { name: 'Vacuum', health: 180, speed: 0.8, reward: 35, color: '#607D8B', emoji: '🧹' },
   { name: 'Mosquito', health: 30, speed: 3, reward: 40, color: '#37474F', emoji: '🦟' },
-  { name: 'Rat', health: 200, speed: 1.5, reward: 50, color: '#8D6E63', emoji: '🐀' }
+  { name: 'Rat', health: 200, speed: 1.5, reward: 45, color: '#8D6E63', emoji: '🐀' }
 ];
 
 /** 
