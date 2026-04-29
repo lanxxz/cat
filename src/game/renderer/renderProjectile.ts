@@ -29,17 +29,23 @@ function renderProjectile(ctx: CanvasRenderingContext2D, proj: Projectile): void
   ctx.rotate(proj.angle);
   
   if (proj.type === 'aoe') {
-    // 面包 (AOE 攻击) / Bread (AOE attack)
+    // 面包 (AOE 攻击) / Bread (AOE attack) — warm bread tone
     ctx.fillStyle = '#D7CCC8';
+    ctx.strokeStyle = '#A08870'; // 暖棕描边 / warm brown stroke
+    ctx.lineWidth = 1.5;
     ctx.beginPath();
     ctx.ellipse(0, 0, 12, 8, 0, 0, Math.PI * 2);
     ctx.fill();
+    ctx.stroke();
   } else {
-    // 水滴/激光 (单发攻击) / Droplet/Laser (single attack)
-    ctx.fillStyle = '#FFF8E1';
+    // 水滴 (单发攻击) / Droplet (single attack) — warm cream
+    ctx.fillStyle = '#FEF7E6';
+    ctx.strokeStyle = '#E8D5A5'; // 暖金描边 / warm gold stroke
+    ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.arc(0, 0, 6, 0, Math.PI * 2);
     ctx.fill();
+    ctx.stroke();
   }
   
   ctx.restore();

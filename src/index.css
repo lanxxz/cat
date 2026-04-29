@@ -1,5 +1,78 @@
-@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap');
+/**
+ * Hajimi Defense — Global Styles / 萌新防御 — 全局样式
+ * 
+ * Design tokens based on animal-island-ui: warm earthy browns + mint green accents
+ * 设计 token 基于 animal-island-ui：温暖大地棕 + 薄荷绿点缀
+ */
 
+/* ============================================
+ * GOOGLE FONTS / 字体引入
+ * ============================================ */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Noto+Sans+SC:wght@400;500;700&family=Zen+Maru+Gothic:wght@400;500;700&display=swap');
+
+/* ============================================
+ * CSS CUSTOM PROPERTIES / CSS 变量
+ * ============================================ */
+:root {
+  /* Typography / 字体 */
+  --animal-font: Nunito, 'Noto Sans SC', 'Zen Maru Gothic',
+    -apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+
+  /* Primary colors / 主色 — 薄荷青绿 */
+  --animal-primary:        #19c8b9;
+  --animal-primary-hover:  #3dd4c6;
+  --animal-primary-active: #11a89b;
+  --animal-primary-bg:     #e6f9f6;
+
+  /* Text colors / 文字 — 温暖棕色系 */
+  --animal-text:           #794f27;
+  --animal-text-body:      #725d42;
+  --animal-text-secondary: #9f927d;
+  --animal-text-muted:     #8a7b66;
+  --animal-text-disabled:  #c4b89e;
+
+  /* Background / 背景 — 奶油米白 */
+  --animal-bg:             #f8f8f0;
+  --animal-bg-content:     rgb(247, 243, 223);
+  --animal-bg-disabled:    #f0ece2;
+
+  /* Border / 边框 */
+  --animal-border:         #c4b89e;
+  --animal-border-hover:   #a89878;
+  --animal-border-strong:  #9f927d;
+
+  /* Border radius / 圆角 */
+  --animal-radius-sm:      12px;
+  --animal-radius:         18px;
+  --animal-radius-lg:      24px;
+  --animal-radius-pill:    50px;
+
+  /* 3D Shadows / 3D 游戏按键阴影 */
+  --animal-shadow-btn:     #bdaea0;
+  --animal-shadow-input:   #d4c9b4;
+
+  /* Status colors / 状态色 */
+  --animal-focus-yellow:   #ffcc00;
+  --animal-focus-yellow-d: #e0b800;
+  --animal-success:        #6fba2c;
+  --animal-success-active: #5a9e1e;
+  --animal-warning:        #f5c31c;
+  --animal-error:          #e05a5a;
+
+  /* Motion / 动效 */
+  --animal-ease:           cubic-bezier(0.4, 0, 0.2, 1);
+  --animal-duration-fast:  0.15s;
+  --animal-duration:       0.25s;
+  --animal-duration-slow:  0.35s;
+
+  /* Card shadow / 卡片暖色阴影 */
+  --animal-card-shadow:    0 3px 10px 0 rgba(61, 52, 40, 0.10);
+  --animal-card-shadow-lg: 0 8px 24px 0 rgba(61, 52, 40, 0.14);
+}
+
+/* ============================================
+ * RESET / 重置
+ * ============================================ */
 * {
   margin: 0;
   padding: 0;
@@ -7,19 +80,21 @@
 }
 
 html {
-  /* Prevent iOS from scaling text on rotation */
   -webkit-text-size-adjust: 100%;
 }
 
+/* ============================================
+ * BODY / 页面背景
+ * ============================================ */
 body {
-  background: linear-gradient(135deg, #FFF8E7 0%, #FFE4EC 50%, #E8F5E9 100%);
+  background: linear-gradient(135deg, #f8f8f0 0%, #e6f9f6 35%, #f8f8f0 70%, #f0e8d8 100%);
   min-height: 100vh;
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-family: 'Nunito', sans-serif;
+  font-family: var(--animal-font);
   overflow-x: hidden;
 }
 
@@ -30,21 +105,49 @@ body {
   width: 100%;
 }
 
-/* 弹跳动画 */
+/* ============================================
+ * KEYFRAME ANIMATIONS / 关键帧动画
+ * ============================================ */
+
+/* Animal island zoom-in / 动物森友会弹入动画 */
+@keyframes animal-zoom-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* Animal island fade-in / 淡入动画 */
+@keyframes animal-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Fade up / 上浮淡入 */
+@keyframes ac-fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Bounce (center positioned) / 弹跳 — 居中定位 */
 @keyframes bounce {
-  0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
-  50% { transform: translate(-50%, -50%) scale(1.1); }
+  0%   { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+  50%  { transform: translate(-50%, -50%) scale(1.1); }
   100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
 }
 
-/* 教程脉冲动画 */
+/* Tutorial bounce / 教程脉冲动画 */
 @keyframes tutorialBounce {
   0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-  50% { transform: translate(-50%, -50%) scale(1.05); opacity: 0.85; }
+  50%      { transform: translate(-50%, -50%) scale(1.05); opacity: 0.85; }
+}
+
+/* Float animation for title / 标题浮动 */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%      { transform: translateY(-6px); }
 }
 
 /* ============================================
- * RESPONSIVE STYLES / 响应式样式
+ * RESPONSIVE / 响应式
  * ============================================ */
 
 /* Phone (≤480px) */
@@ -53,10 +156,9 @@ body {
     overflow-y: auto;
     justify-content: flex-start;
     padding-top: 8px;
-    padding-bottom: 60px; /* space for fixed tower panel */
+    padding-bottom: 60px; /* space for fixed tower panel / 为固定塔面板留空间 */
   }
 
-  /* Make all interactive elements avoid 300ms tap delay */
   button, canvas {
     touch-action: manipulation;
   }

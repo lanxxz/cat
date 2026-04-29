@@ -160,7 +160,7 @@ describe('getLevelDisplayConfig', () => {
 
   describe('constants / 常量', () => {
     it('LEVEL_BADGE_FONT is defined', () => {
-      expect(LEVEL_BADGE_FONT).toBe('bold 11px Fredoka One');
+      expect(LEVEL_BADGE_FONT).toBe('bold 11px Nunito, sans-serif');
     });
 
     it('LEVEL_BADGE_OFFSET is defined', () => {

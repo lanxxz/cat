@@ -42,9 +42,9 @@ export function renderBase(ctx: CanvasRenderingContext2D, path: { x: number; y: 
   ctx.fill();
   ctx.stroke();
   
-  // 文字 / Text
-  ctx.fillStyle = '#FFF';
-  ctx.font = 'bold 10px Nunito';
+  // 文字 / Text — warm cream
+  ctx.fillStyle = '#FEFAE0';
+  ctx.font = 'bold 10px Nunito, sans-serif';
   ctx.textAlign = 'center';
   ctx.fillText('TUNA', base.x, base.y + 3);
   

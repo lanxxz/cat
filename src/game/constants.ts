@@ -166,8 +166,8 @@ export const TOWER_TYPES: TowerTypeConfig[] = [
     damage: 15, 
     attackSpeed: 500, 
     range: 100, 
-    color: '#FFA726', 
-    projectileColor: '#FFF8E1', 
+    color: '#E8985E',        // 温暖沙橙 / Warm sandy orange
+    projectileColor: '#FEF7E6', // 暖奶油 / Warm cream
     type: 'single' 
   },
   { 
@@ -176,8 +176,8 @@ export const TOWER_TYPES: TowerTypeConfig[] = [
     damage: 50, 
     attackSpeed: 1500, 
     range: 200, 
-    color: '#90A4AE', 
-    projectileColor: '#E91E63', 
+    color: '#BCAAA4',        // 暖灰褐 / Warm taupe
+    projectileColor: '#D9597A', // 柔和粉 / Soft pink (laser)
     type: 'single' 
   },
   { 
@@ -186,8 +186,8 @@ export const TOWER_TYPES: TowerTypeConfig[] = [
     damage: 25, 
     attackSpeed: 1000, 
     range: 120, 
-    color: '#FF8A65', 
-    projectileColor: '#D7CCC8', 
+    color: '#F4A460',        // 金砂色 / Golden sand
+    projectileColor: '#D7CCC8', // 暖灰面包 / Warm grey bread
     type: 'aoe', 
     aoeRadius: 60 
   }
@@ -217,10 +217,10 @@ export interface EnemyTypeConfig {
  * 3: 🐀 Rat - 老鼠 / 中速中血量 (wave 10+)
  */
 export const ENEMY_TYPES: EnemyTypeConfig[] = [
-  { name: 'Cucumber', health: 30, speed: 1, reward: 20, color: '#7CB342', emoji: '🥒' },
-  { name: 'Vacuum', health: 180, speed: 0.8, reward: 35, color: '#607D8B', emoji: '🧹' },
-  { name: 'Mosquito', health: 30, speed: 3, reward: 40, color: '#37474F', emoji: '🦟' },
-  { name: 'Rat', health: 200, speed: 1.5, reward: 45, color: '#8D6E63', emoji: '🐀' }
+  { name: 'Cucumber', health: 30, speed: 1, reward: 20, color: '#9CCC65', emoji: '🥒' }, // 柔和大地绿 / Soft earthy green
+  { name: 'Vacuum', health: 180, speed: 0.8, reward: 35, color: '#A49E96', emoji: '🧹' }, // 暖灰褐复古 / Warm taupe vintage
+  { name: 'Mosquito', health: 30, speed: 3, reward: 40, color: '#3D3430', emoji: '🦟' }, // 暖暗棕 / Warm dark brown
+  { name: 'Rat', health: 200, speed: 1.5, reward: 45, color: '#9C8275', emoji: '🐀' }    // 暖棕大地色 / Warm earthy brown
 ];
 
 /** 
@@ -503,7 +503,7 @@ export function getTowerStats(
 }
 
 /** 等级徽章字体样式 / Level badge font style */
-export const LEVEL_BADGE_FONT = 'bold 11px Fredoka One';
+export const LEVEL_BADGE_FONT = 'bold 11px Nunito, sans-serif';
 
 /** 等级徽章偏移位置 / Level badge offset from tower center */
 export const LEVEL_BADGE_OFFSET = { x: 18, y: -18 };
