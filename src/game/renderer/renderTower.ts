@@ -1,366 +1,366 @@
 /**
  * Tower Renderer / 防御塔渲染器
  * 
- * Renders all 3 tower types with animal-island-ui inspired palette.
- * 渲染所有 3 种防御塔，采用动物森友会风格的温暖配色。
+ * Renders 3 cat tower types in refined illustration style.
+ * 以精致插画风格渲染 3 种猫咪防御塔。
  * 
- * Design principles / 设计原则:
- * - Warm earthy tones for fur (sandy orange, warm taupe, golden sand)
- * - Cream/peach highlights (inner ears, blush)
- * - Warm brown shadows instead of black
- * - Soft, round chibi shapes
- * - 暖色系毛色（沙橙、暖灰褐、金砂）
- * - 奶油/蜜桃色高光（内耳、腮红）
- * - 暖棕阴影替代纯黑
- * - 柔和的 Q 版圆润造型
+ * Design: picture-book illustration — natural rounded proportions,
+ * gradient-like shading, warm earthy palette (animal-island).
+ * 设计：绘本插画风 — 自然圆润比例、渐变层次、温暖大地色。
  */
 
 import type { Tower } from '../types';
 import { getLevelDisplayConfig, LEVEL_BADGE_FONT, LEVEL_BADGE_OFFSET } from '../constants';
 
-// ============================================
-// DESIGN TOKENS / 设计 token (animal-island 暖色系)
-// ============================================
+// ── Shared palette / 共享调色板 ──
+const SHD = 'rgba(61,52,40,0.2)';   // warm shadow
+const EYE_DARK  = '#5D3A28';         // eye pupil
+const NOSE_PINK = '#F08A7E';         // nose
+const BLUSH     = '#F0C8A0';         // blush / inner ear
+const WARM_WHITE = '#FEFAE0';        // highlight white
 
-/** 暖棕阴影 / Warm brown shadow */
-const SHADOW_COLOR = 'rgba(61, 52, 40, 0.18)';
+/* ── Tabby tokens / 虎斑猫 ── */
+const TB_FUR     = '#E8985E';
+const TB_STRIPE  = '#C47D48';
+const TB_BELLY   = '#FCE4C8';
 
-/** 暖棕（眼睛/线条）/ Warm brown for eyes and strokes */
-const EYE_BROWN = '#6D4C41';
+/* ── Siamese tokens / 暹罗猫 ── */
+const SM_FUR     = '#F0EBE5';        // light body
+const SM_POINT   = '#A08870';        // seal point (face, ears, paws, tail)
+const SM_EYE     = '#4896D8';        // blue eyes
+const SM_EYE_HL  = '#B8D8F0';        // eye highlight
+const SM_BOW     = '#E05050';        // red bow
+const SM_BELL    = '#FFD700';        // gold bell
 
-/** 柔和粉色（鼻子）/ Soft pink for nose */
-const NOSE_PINK = '#F08A7E';
+/* ── Orange tokens / 胖橘猫 ── */
+const OR_FUR     = '#F4A460';
+const OR_BELLY   = '#FFD29A';
+const OR_BREAD   = '#DEC4A0';
+const OR_BREAD_S = '#B8956E';
 
-/** 暖蜜桃色（腮红/内耳）/ Warm peach for blush and inner ears */
-const BLUSH_PEACH = '#F0C8A0';
+// ═══════════════════════════════════════════
+// Public API
+// ═══════════════════════════════════════════
 
-// Tabby (type 0) / 虎斑猫 — 温暖沙橙
-const TABBY_FUR     = '#E8985E';  // 沙橙色身体 / Sandy orange body
-const TABBY_STRIPE  = '#C48450';  // 暖棕条纹 / Warm brown stripes
-const TABBY_HIGHLIGHT = '#F4C89A'; // 奶油色高光 / Cream highlight
-
-// Siamese (type 1) / 暹罗猫 — 暖灰褐
-const SIAMESE_FUR   = '#BCAAA4';  // 暖灰褐身体 / Warm taupe body
-const SIAMESE_EYE   = '#5C9CE6';  // 柔和蓝眼睛 / Soft blue eyes
-const SIAMESE_EYE_SHINE = '#B3D4F7'; // 柔蓝高光 / Soft blue highlight
-
-// Orange Bread (type 2) / 胖橘猫 — 金砂色
-const ORANGE_FUR    = '#F4A460';  // 金砂色身体 / Golden sand body
-const ORANGE_BELLY  = '#FFD29A';  // 奶油橘肚皮 / Cream-orange belly
-const ORANGE_BREAD  = '#D7CCC8';  // 面包 — 暖灰 / Bread — warm grey
-const ORANGE_BREAD_STROKE = '#A08870'; // 面包描边 — 暖棕 / Bread stroke — warm brown
-
-// Level glow / 等级光环 — 保留原有映射
-const BADGE_BG = 'rgba(61, 52, 40, 0.55)'; // 暖棕半透明徽章背景
-
-/**
- * 渲染所有防御塔 / Render all towers
- */
 export function renderTowers(ctx: CanvasRenderingContext2D, towers: Tower[]): void {
-  for (const tower of towers) {
-    renderTower(ctx, tower);
-  }
+  for (const t of towers) renderTower(ctx, t);
 }
 
-/**
- * 渲染单个防御塔 / Render single tower
- */
-function renderTower(ctx: CanvasRenderingContext2D, tower: Tower): void {
-  const tx = tower.x;
-  const ty = tower.y;
-  
-  // 暖色阴影 / Warm shadow
-  ctx.fillStyle = SHADOW_COLOR;
+function renderTower(ctx: CanvasRenderingContext2D, t: Tower): void {
+  const tx = t.x, ty = t.y;
+  const lv = t.level || 1;
+  const cfg = getLevelDisplayConfig(lv);
+
+  // ── shadow ──
+  ctx.fillStyle = SHD;
   ctx.beginPath();
-  ctx.ellipse(tx, ty + 22, 24, 10, 0, 0, Math.PI * 2);
+  ctx.ellipse(tx, ty + 22, 26, 11, 0, 0, Math.PI * 2);
   ctx.fill();
-  
-  // 等级显示配置 / Level display configuration
-  const level = tower.level || 1;
-  const display = getLevelDisplayConfig(level);
-  
-  // 等级光环（Lv2+ 有颜色光晕）/ Level glow ring (Lv2+ has colored glow)
-  if (display.glowColor) {
+
+  // ── level glow ──
+  if (cfg.glowColor) {
     ctx.save();
-    ctx.shadowColor = display.glowColor;
-    ctx.shadowBlur = 6 + level * 2;
-    ctx.beginPath();
-    ctx.arc(tx, ty, 20, 0, Math.PI * 2);
-    ctx.fillStyle = display.glowColor;
-    ctx.globalAlpha = 0.12;
-    ctx.fill();
-    ctx.restore();
+    ctx.shadowColor = cfg.glowColor;
+    ctx.shadowBlur = 5 + lv * 2;
+    ctx.beginPath(); ctx.arc(tx, ty, 22, 0, Math.PI * 2);
+    ctx.fillStyle = cfg.glowColor;
+    ctx.globalAlpha = 0.1; ctx.fill(); ctx.restore();
   }
-  
-  // 根据类型渲染不同猫咪 / Render different cats based on type
-  if (tower.type === 0) {
-    renderSpittingTabby(ctx, tx, ty);
-  } else if (tower.type === 1) {
-    renderSiameseSniper(ctx, tx, ty);
-  } else {
-    renderOrangeBreadCat(ctx, tx, ty);
+
+  // ── cat body ──
+  if (t.type === 0) drawTabby(ctx, tx, ty);
+  else if (t.type === 1) drawSiamese(ctx, tx, ty);
+  else drawOrange(ctx, tx, ty);
+
+  // ── badge ──
+  const bx = tx + LEVEL_BADGE_OFFSET.x, by = ty + LEVEL_BADGE_OFFSET.y;
+  ctx.fillStyle = 'rgba(61,52,40,0.55)';
+  const tw = ctx.measureText(cfg.badgeText).width + 8;
+  ctx.beginPath(); ctx.roundRect(bx - tw / 2, by - 8, tw, 16, 4); ctx.fill();
+  ctx.font = LEVEL_BADGE_FONT; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.strokeStyle = 'rgba(61,52,40,0.5)'; ctx.lineWidth = 2;
+  ctx.strokeText(cfg.badgeText, bx, by);
+  ctx.fillStyle = cfg.badgeColor; ctx.fillText(cfg.badgeText, bx, by);
+}
+
+// ═══════════════════════════════════════════
+// TABBY — 虎斑猫 (sitting, striped tail, fang)
+// ═══════════════════════════════════════════
+
+function drawTabby(ctx: CanvasRenderingContext2D, tx: number, ty: number): void {
+  // ── tail (behind body) ──
+  ctx.lineWidth = 8; ctx.lineCap = 'round'; ctx.strokeStyle = TB_FUR;
+  ctx.beginPath();
+  ctx.moveTo(tx + 14, ty + 6);
+  ctx.quadraticCurveTo(tx + 30, ty - 2, tx + 28, ty + 16);
+  ctx.quadraticCurveTo(tx + 26, ty + 24, tx + 20, ty + 18);
+  ctx.stroke();
+  // tail stripes
+  ctx.strokeStyle = TB_STRIPE; ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(tx + 24, ty + 6); ctx.lineTo(tx + 26, ty + 10);
+  ctx.moveTo(tx + 27, ty + 12); ctx.lineTo(tx + 29, ty + 6);
+  ctx.stroke();
+
+  // ── body ──
+  ctx.fillStyle = TB_FUR;
+  ctx.beginPath(); ctx.ellipse(tx, ty + 17, 16, 15, 0, 0, Math.PI * 2); ctx.fill();
+  // chest V
+  ctx.fillStyle = TB_BELLY;
+  ctx.beginPath();
+  ctx.moveTo(tx, ty + 2); ctx.lineTo(tx - 8, ty + 22); ctx.lineTo(tx + 8, ty + 22); ctx.closePath();
+  ctx.fill();
+
+  // ── paws ──
+  drawPaws(ctx, tx, ty + 24, 4);
+
+  // ── head ──
+  ctx.fillStyle = TB_FUR;
+  ctx.beginPath(); ctx.arc(tx, ty - 4, 20, 0, Math.PI * 2); ctx.fill();
+
+  // ── ears ──
+  drawEar(ctx, tx - 12, ty - 17, -0.2, TB_FUR, BLUSH);
+  drawEar(ctx, tx + 12, ty - 17, 0.2, TB_FUR, BLUSH);
+
+  // ── M stripe ──
+  ctx.strokeStyle = TB_STRIPE; ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(tx - 8, ty - 18); ctx.lineTo(tx - 3, ty - 12);
+  ctx.moveTo(tx + 8, ty - 18); ctx.lineTo(tx + 3, ty - 12);
+  ctx.moveTo(tx - 7, ty - 15); ctx.lineTo(tx, ty - 10); ctx.lineTo(tx + 7, ty - 15);
+  ctx.stroke();
+  // cheek stripes
+  ctx.beginPath();
+  ctx.moveTo(tx - 8, ty + 0); ctx.lineTo(tx - 13, ty + 5);
+  ctx.moveTo(tx + 8, ty + 0); ctx.lineTo(tx + 13, ty + 5);
+  ctx.stroke();
+
+  // ── eyes (sparkly) ──
+  drawSparkleEye(ctx, tx - 7, ty - 6, 6, 5, EYE_DARK, WARM_WHITE);
+  drawSparkleEye(ctx, tx + 7, ty - 6, 6, 5, EYE_DARK, WARM_WHITE);
+
+  // ── nose ──
+  ctx.fillStyle = NOSE_PINK;
+  ctx.beginPath(); ctx.moveTo(tx, ty + 0); ctx.lineTo(tx - 3, ty + 4); ctx.lineTo(tx + 3, ty + 4); ctx.fill();
+
+  // ── mouth + fang ──
+  ctx.strokeStyle = EYE_DARK; ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(tx - 3, ty + 4); ctx.lineTo(tx, ty + 7); ctx.lineTo(tx + 3, ty + 4);
+  ctx.stroke();
+  ctx.fillStyle = WARM_WHITE;
+  ctx.beginPath(); ctx.moveTo(tx + 1, ty + 6); ctx.lineTo(tx + 3, ty + 10); ctx.lineTo(tx + 4, ty + 6); ctx.fill();
+
+  // ── blush ──
+  ctx.fillStyle = BLUSH;
+  ctx.beginPath(); ctx.ellipse(tx - 14, ty + 1, 5, 3.5, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(tx + 14, ty + 1, 5, 3.5, 0, 0, Math.PI * 2); ctx.fill();
+
+  // ── whiskers ──
+  drawWhiskers(ctx, tx, ty + 2, 3);
+}
+
+// ═══════════════════════════════════════════
+// SIAMESE — 暹罗猫 (elegant, seal-point, bow)
+// ═══════════════════════════════════════════
+
+function drawSiamese(ctx: CanvasRenderingContext2D, tx: number, ty: number): void {
+  // ── tail (dark, behind body) ──
+  ctx.lineWidth = 7; ctx.lineCap = 'round';
+  ctx.strokeStyle = SM_POINT;
+  ctx.beginPath();
+  ctx.moveTo(tx + 12, ty + 10);
+  ctx.quadraticCurveTo(tx + 24, ty - 4, tx + 20, ty + 20);
+  ctx.stroke();
+
+  // ── body (slim) ──
+  ctx.fillStyle = SM_FUR;
+  ctx.beginPath(); ctx.ellipse(tx, ty + 16, 13, 16, 0, 0, Math.PI * 2); ctx.fill();
+
+  // ── dark paws ──
+  ctx.fillStyle = SM_POINT;
+  ctx.beginPath(); ctx.ellipse(tx - 6, ty + 27, 4, 4, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(tx + 6, ty + 27, 4, 4, 0, 0, Math.PI * 2); ctx.fill();
+
+  // ── head ──
+  ctx.fillStyle = SM_FUR;
+  ctx.beginPath(); ctx.arc(tx, ty - 5, 19, 0, Math.PI * 2); ctx.fill();
+  // face mask (seal point)
+  ctx.fillStyle = SM_POINT;
+  ctx.beginPath();
+  ctx.moveTo(tx, ty + 4); ctx.lineTo(tx - 10, ty - 8); ctx.lineTo(tx - 4, ty - 16);
+  ctx.quadraticCurveTo(tx, ty - 20, tx + 4, ty - 16);
+  ctx.lineTo(tx + 10, ty - 8); ctx.closePath();
+  ctx.fill();
+
+  // ── ears ──
+  drawEar(ctx, tx - 13, ty - 16, -0.15, SM_POINT, SM_FUR);
+  drawEar(ctx, tx + 13, ty - 16, 0.15, SM_POINT, SM_FUR);
+
+  // ── eyes (almond blue, sparkly) ──
+  drawAlmondEye(ctx, tx - 7, ty - 5, 5, 6, SM_EYE, SM_EYE_HL);
+  drawAlmondEye(ctx, tx + 7, ty - 5, 5, 6, SM_EYE, SM_EYE_HL);
+
+  // ── nose ──
+  ctx.fillStyle = NOSE_PINK;
+  ctx.beginPath(); ctx.arc(tx, ty + 2, 2.5, 0, Math.PI * 2); ctx.fill();
+
+  // ── mouth ──
+  ctx.strokeStyle = SM_POINT; ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(tx - 3, ty + 5); ctx.lineTo(tx, ty + 8); ctx.lineTo(tx + 3, ty + 5);
+  ctx.stroke();
+
+  // ── blush ──
+  ctx.fillStyle = BLUSH;
+  ctx.beginPath(); ctx.ellipse(tx - 13, ty + 1, 4, 3, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(tx + 13, ty + 1, 4, 3, 0, 0, Math.PI * 2); ctx.fill();
+
+  // ── bow + bell ──
+  ctx.fillStyle = SM_BOW;
+  ctx.beginPath(); ctx.moveTo(tx, ty + 14); ctx.lineTo(tx - 5, ty + 9); ctx.lineTo(tx - 5, ty + 19); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(tx, ty + 14); ctx.lineTo(tx + 5, ty + 9); ctx.lineTo(tx + 5, ty + 19); ctx.fill();
+  ctx.fillStyle = SM_BELL; ctx.strokeStyle = '#C8A000'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.arc(tx, ty + 17, 3.5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#8A6D00'; ctx.fillRect(tx - 0.5, ty + 20, 1, 2);
+
+  // ── whiskers ──
+  drawWhiskers(ctx, tx, ty + 3, 3);
+}
+
+// ═══════════════════════════════════════════
+// ORANGE — 胖橘猫 (round loaf, bread, ^_^)
+// ═══════════════════════════════════════════
+
+function drawOrange(ctx: CanvasRenderingContext2D, tx: number, ty: number): void {
+  // ── tiny tail ──
+  ctx.lineWidth = 7; ctx.lineCap = 'round'; ctx.strokeStyle = OR_FUR;
+  ctx.beginPath();
+  ctx.moveTo(tx + 16, ty + 10);
+  ctx.quadraticCurveTo(tx + 24, ty + 4, tx + 20, ty + 6);
+  ctx.stroke();
+
+  // ── body (very round loaf) ──
+  ctx.fillStyle = OR_FUR;
+  ctx.beginPath(); ctx.ellipse(tx, ty + 17, 22, 17, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = OR_BELLY;
+  ctx.beginPath(); ctx.ellipse(tx, ty + 18, 15, 11, 0, 0, Math.PI * 2); ctx.fill();
+
+  // ── head (huge round) ──
+  ctx.fillStyle = OR_FUR;
+  ctx.beginPath(); ctx.arc(tx, ty - 5, 21, 0, Math.PI * 2); ctx.fill();
+
+  // ── tiny ears ──
+  drawEar(ctx, tx - 10, ty - 20, -0.1, OR_FUR, BLUSH);
+  drawEar(ctx, tx + 10, ty - 20, 0.1, OR_FUR, BLUSH);
+
+  // ── eyes (happy ^_^) ──
+  ctx.strokeStyle = EYE_DARK; ctx.lineWidth = 3.5; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.arc(tx - 8, ty - 7, 7, Math.PI, 0); ctx.stroke();
+  ctx.beginPath(); ctx.arc(tx + 8, ty - 7, 7, Math.PI, 0); ctx.stroke();
+
+  // ── nose ──
+  ctx.fillStyle = NOSE_PINK;
+  ctx.beginPath(); ctx.arc(tx, ty + 0, 3.5, 0, Math.PI * 2); ctx.fill();
+
+  // ── mouth ──
+  ctx.strokeStyle = EYE_DARK; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(tx, ty + 3, 6, 0.2 * Math.PI, 0.8 * Math.PI); ctx.stroke();
+
+  // ── big blush ──
+  ctx.fillStyle = BLUSH;
+  ctx.beginPath(); ctx.ellipse(tx - 15, ty + 1, 7, 5, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(tx + 15, ty + 1, 7, 5, 0, 0, Math.PI * 2); ctx.fill();
+
+  // ── bread ──
+  ctx.fillStyle = OR_BREAD;
+  ctx.beginPath(); ctx.ellipse(tx + 16, ty + 14, 14, 9, 0.2, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = OR_BREAD_S; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.ellipse(tx + 16, ty + 14, 14, 9, 0.2, 0, Math.PI * 2); ctx.stroke();
+  ctx.strokeStyle = OR_BREAD_S; ctx.lineWidth = 1; ctx.globalAlpha = 0.5;
+  ctx.beginPath(); ctx.moveTo(tx + 8, ty + 12); ctx.lineTo(tx + 16, ty + 18); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(tx + 16, ty + 6); ctx.lineTo(tx + 22, ty + 12); ctx.stroke();
+  ctx.globalAlpha = 1;
+
+  // ── paws over bread ──
+  ctx.fillStyle = OR_FUR;
+  ctx.beginPath(); ctx.ellipse(tx + 11, ty + 12, 5, 4, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(tx + 21, ty + 12, 5, 4, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = BLUSH;
+  ctx.beginPath(); ctx.arc(tx + 11, ty + 13, 2, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(tx + 21, ty + 13, 2, 0, Math.PI * 2); ctx.fill();
+
+  // ── whiskers ──
+  drawWhiskers(ctx, tx, ty + 1, 2);
+}
+
+// ═══════════════════════════════════════════
+// Shared helpers / 共享绘图函数
+// ═══════════════════════════════════════════
+
+function drawEar(
+  ctx: CanvasRenderingContext2D,
+  x: number, y: number, tilt: number,
+  outer: string, inner: string,
+): void {
+  ctx.save(); ctx.translate(x, y); ctx.rotate(tilt);
+  ctx.fillStyle = outer;
+  ctx.beginPath(); ctx.moveTo(-9, 0); ctx.lineTo(-3, -14); ctx.lineTo(3, -14); ctx.lineTo(9, 0); ctx.fill();
+  ctx.fillStyle = inner;
+  ctx.beginPath(); ctx.moveTo(-6, -2); ctx.lineTo(-1, -12); ctx.lineTo(3, -12); ctx.lineTo(6, -2); ctx.fill();
+  ctx.restore();
+}
+
+function drawSparkleEye(
+  ctx: CanvasRenderingContext2D,
+  x: number, y: number, w: number, h: number,
+  iris: string, hl: string,
+): void {
+  ctx.fillStyle = hl;
+  ctx.beginPath(); ctx.ellipse(x, y, w + 0.5, h + 0.5, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = iris;
+  ctx.beginPath(); ctx.ellipse(x, y, w - 1, h - 1, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = hl;
+  ctx.beginPath(); ctx.arc(x + 2, y - 2, 2.5, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x - 2, y + 1, 1.2, 0, Math.PI * 2); ctx.fill();
+}
+
+function drawAlmondEye(
+  ctx: CanvasRenderingContext2D,
+  x: number, y: number, w: number, h: number,
+  iris: string, hl: string,
+): void {
+  ctx.fillStyle = hl;
+  ctx.beginPath(); ctx.ellipse(x, y, w + 0.8, h + 0.8, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = iris;
+  ctx.beginPath(); ctx.ellipse(x, y, w, h, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#1A3048';
+  ctx.beginPath(); ctx.ellipse(x, y, 1.8, h * 0.7, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = hl;
+  ctx.beginPath(); ctx.arc(x + 2, y - 2, 2.2, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x - 1.5, y + 1.5, 1, 0, Math.PI * 2); ctx.fill();
+}
+
+function drawWhiskers(ctx: CanvasRenderingContext2D, cx: number, cy: number, count: number): void {
+  ctx.strokeStyle = WARM_WHITE; ctx.lineWidth = 0.8; ctx.globalAlpha = 0.7;
+  for (let i = 0; i < count; i++) {
+    const dy = -3 + i * 4;
+    ctx.beginPath(); ctx.moveTo(cx - 8, cy); ctx.lineTo(cx - 20, cy + dy); ctx.stroke();
   }
-  
-  // 等级徽章 / Level badge
-  const badgeX = tx + LEVEL_BADGE_OFFSET.x;
-  const badgeY = ty + LEVEL_BADGE_OFFSET.y;
-  
-  // 徽章背景 — 暖棕半透明 / Badge background — warm brown
-  ctx.fillStyle = BADGE_BG;
-  const textWidth = ctx.measureText(display.badgeText).width;
-  const badgeW = textWidth + 8;
-  const badgeH = 16;
-  ctx.beginPath();
-  ctx.roundRect(badgeX - badgeW / 2, badgeY - badgeH / 2, badgeW, badgeH, 4);
-  ctx.fill();
-  
-  // 徽章文字 / Badge text
-  ctx.font = LEVEL_BADGE_FONT;
-  ctx.fillStyle = display.badgeColor;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.strokeStyle = 'rgba(61, 52, 40, 0.6)'; // 暖色描边替代纯黑
-  ctx.lineWidth = 2;
-  ctx.strokeText(display.badgeText, badgeX, badgeY);
-  ctx.fillText(display.badgeText, badgeX, badgeY);
+  for (let i = 0; i < count; i++) {
+    const dy = -3 + i * 4;
+    ctx.beginPath(); ctx.moveTo(cx + 8, cy); ctx.lineTo(cx + 20, cy + dy); ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
 }
 
-/**
- * 渲染随地吐痰的虎斑猫 (暖沙橙色) / Render Spitting Tabby — warm sandy orange
- */
-function renderSpittingTabby(ctx: CanvasRenderingContext2D, tx: number, ty: number): void {
-  // 身体 (chibi 风格) / Body (chibi style)
-  ctx.fillStyle = TABBY_FUR;
-  ctx.beginPath();
-  ctx.ellipse(tx, ty + 10, 24, 20, 0, 0, Math.PI * 2);
-  ctx.fill();
-  
-  // 条纹 / Stripes — warm brown
-  ctx.strokeStyle = TABBY_STRIPE;
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.moveTo(tx - 12, ty); ctx.lineTo(tx - 6, ty + 12);
-  ctx.moveTo(tx + 12, ty); ctx.lineTo(tx + 6, ty + 12);
-  ctx.moveTo(tx, ty - 4); ctx.lineTo(tx, ty + 10);
-  ctx.stroke();
-  
-  // 头部 (圆形) / Head (round)
-  ctx.fillStyle = TABBY_FUR;
-  ctx.beginPath();
-  ctx.arc(tx, ty - 8, 20, 0, Math.PI * 2);
-  ctx.fill();
-  
-  // 耳朵 (小三角形) / Ears (small triangles)
-  ctx.fillStyle = TABBY_FUR;
-  ctx.beginPath();
-  ctx.moveTo(tx - 14, ty - 20); ctx.lineTo(tx - 10, ty - 32); ctx.lineTo(tx - 4, ty - 22);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.moveTo(tx + 14, ty - 20); ctx.lineTo(tx + 10, ty - 32); ctx.lineTo(tx + 4, ty - 22);
-  ctx.fill();
-  
-  // 内耳 (暖蜜桃色) / Inner ears — warm peach
-  ctx.fillStyle = BLUSH_PEACH;
-  ctx.beginPath();
-  ctx.moveTo(tx - 12, ty - 22); ctx.lineTo(tx - 10, ty - 28); ctx.lineTo(tx - 6, ty - 22);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.moveTo(tx + 12, ty - 22); ctx.lineTo(tx + 10, ty - 28); ctx.lineTo(tx + 6, ty - 22);
-  ctx.fill();
-  
-  // 眼睛 (大而有神) / Eyes — big kawaii
-  ctx.fillStyle = EYE_BROWN;
-  ctx.beginPath();
-  ctx.ellipse(tx - 7, ty - 10, 4, 5, 0, 0, Math.PI * 2);
-  ctx.ellipse(tx + 7, ty - 10, 4, 5, 0, 0, Math.PI * 2);
-  ctx.fill();
-  
-  // 奶油高光 / Cream highlight — warm cream
-  ctx.fillStyle = TABBY_HIGHLIGHT;
-  ctx.beginPath();
-  ctx.arc(tx - 8, ty - 12, 2, 0, Math.PI * 2);
-  ctx.arc(tx + 6, ty - 12, 2, 0, Math.PI * 2);
-  ctx.fill();
-  
-  // 腮红 — 暖蜜桃色 / Blush — warm peach
-  ctx.fillStyle = BLUSH_PEACH;
-  ctx.beginPath();
-  ctx.ellipse(tx - 14, ty - 2, 5, 3, 0, 0, Math.PI * 2);
-  ctx.ellipse(tx + 14, ty - 2, 5, 3, 0, 0, Math.PI * 2);
-  ctx.fill();
-  
-  // 鼻子 / Nose — soft pink
-  ctx.fillStyle = NOSE_PINK;
-  ctx.beginPath();
-  ctx.arc(tx, ty - 4, 3, 0, Math.PI * 2);
-  ctx.fill();
-  
-  // 嘴巴 (微笑) / Mouth — small smile
-  ctx.strokeStyle = EYE_BROWN;
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.arc(tx, ty, 4, 0.2 * Math.PI, 0.8 * Math.PI);
-  ctx.stroke();
+function drawPaws(ctx: CanvasRenderingContext2D, cx: number, y: number, size: number): void {
+  ctx.fillStyle = TB_FUR;
+  ctx.beginPath(); ctx.ellipse(cx - 7, y, size, size + 1, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(cx + 7, y, size, size + 1, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = BLUSH;
+  ctx.beginPath(); ctx.arc(cx - 7, y + 1, size * 0.5, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx + 7, y + 1, size * 0.5, 0, Math.PI * 2); ctx.fill();
 }
 
-/**
- * 渲染狙击手暹罗猫 (暖灰褐 + 柔和蓝眼) / Render Siamese Sniper — warm taupe + soft blue eyes
- */
-function renderSiameseSniper(ctx: CanvasRenderingContext2D, tx: number, ty: number): void {
-  // 身体 / Body — warm taupe
-  ctx.fillStyle = SIAMESE_FUR;
-  ctx.beginPath();
-  ctx.ellipse(tx, ty + 10, 24, 20, 0, 0, Math.PI * 2);
-  ctx.fill();
-  
-  // 头部 / Head
-  ctx.beginPath();
-  ctx.arc(tx, ty - 8, 20, 0, Math.PI * 2);
-  ctx.fill();
-  
-  // 尖耳朵 / Pointed ears
-  ctx.fillStyle = SIAMESE_FUR;
-  ctx.beginPath();
-  ctx.moveTo(tx - 14, ty - 20); ctx.lineTo(tx - 8, ty - 34); ctx.lineTo(tx - 2, ty - 22);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.moveTo(tx + 14, ty - 20); ctx.lineTo(tx + 8, ty - 34); ctx.lineTo(tx + 2, ty - 22);
-  ctx.fill();
-  
-  // 内耳 — 暖奶油色 / Inner ears — warm cream
-  ctx.fillStyle = '#FAE8C8';
-  ctx.beginPath();
-  ctx.moveTo(tx - 12, ty - 22); ctx.lineTo(tx - 8, ty - 30); ctx.lineTo(tx - 4, ty - 22);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.moveTo(tx + 12, ty - 22); ctx.lineTo(tx + 8, ty - 30); ctx.lineTo(tx + 4, ty - 22);
-  ctx.fill();
-  
-  // 蓝色眼睛 (狙击手眼神) / Blue eyes — soft blue (sniper focus)
-  ctx.fillStyle = SIAMESE_EYE;
-  ctx.beginPath();
-  ctx.ellipse(tx - 7, ty - 10, 5, 6, 0, 0, Math.PI * 2);
-  ctx.ellipse(tx + 7, ty - 10, 5, 6, 0, 0, Math.PI * 2);
-  ctx.fill();
-  
-  // 瞳孔 / Pupil — warm dark brown instead of pure black
-  ctx.fillStyle = EYE_BROWN;
-  ctx.beginPath();
-  ctx.arc(tx - 7, ty - 10, 2, 0, Math.PI * 2);
-  ctx.arc(tx + 7, ty - 10, 2, 0, Math.PI * 2);
-  ctx.fill();
-  
-  // 眼神光 / Eye shine — soft blue highlight
-  ctx.fillStyle = SIAMESE_EYE_SHINE;
-  ctx.beginPath();
-  ctx.arc(tx - 9, ty - 12, 2, 0, Math.PI * 2);
-  ctx.arc(tx + 5, ty - 12, 2, 0, Math.PI * 2);
-  ctx.fill();
-  
-  // 腮红 — 暖蜜桃色 / Blush — warm peach
-  ctx.fillStyle = BLUSH_PEACH;
-  ctx.beginPath();
-  ctx.ellipse(tx - 14, ty - 2, 5, 3, 0, 0, Math.PI * 2);
-  ctx.ellipse(tx + 14, ty - 2, 5, 3, 0, 0, Math.PI * 2);
-  ctx.fill();
-  
-  // 三角形鼻子 / Triangle nose — soft pink
-  ctx.fillStyle = NOSE_PINK;
-  ctx.beginPath();
-  ctx.moveTo(tx, ty - 3);
-  ctx.lineTo(tx - 3, ty);
-  ctx.lineTo(tx + 3, ty);
-  ctx.fill();
-  
-  // 严肃嘴巴 / Serious mouth
-  ctx.strokeStyle = EYE_BROWN;
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(tx - 3, ty + 4);
-  ctx.lineTo(tx, ty + 3);
-  ctx.lineTo(tx + 3, ty + 4);
-  ctx.stroke();
-}
-
-/**
- * 渲染胖橘猫 (金砂色 + 面包) / Render Orange Bread Fat Cat — golden sand + bread
- */
-function renderOrangeBreadCat(ctx: CanvasRenderingContext2D, tx: number, ty: number): void {
-  // 胖身体 (非常圆) / FAT body — really round
-  ctx.fillStyle = ORANGE_FUR;
-  ctx.beginPath();
-  ctx.ellipse(tx, ty + 12, 28, 24, 0, 0, Math.PI * 2);
-  ctx.fill();
-  
-  // 肚子 (较浅奶油橘) / Belly — lighter cream-orange
-  ctx.fillStyle = ORANGE_BELLY;
-  ctx.beginPath();
-  ctx.ellipse(tx, ty + 14, 18, 14, 0, 0, Math.PI * 2);
-  ctx.fill();
-  
-  // 头部 (也圆) / Head — also round
-  ctx.fillStyle = ORANGE_FUR;
-  ctx.beginPath();
-  ctx.arc(tx, ty - 6, 22, 0, Math.PI * 2);
-  ctx.fill();
-  
-  // 小耳朵 / Tiny ears
-  ctx.beginPath();
-  ctx.moveTo(tx - 12, ty - 20); ctx.lineTo(tx - 6, ty - 28); ctx.lineTo(tx, ty - 22);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.moveTo(tx + 12, ty - 20); ctx.lineTo(tx + 6, ty - 28); ctx.lineTo(tx, ty - 22);
-  ctx.fill();
-  
-  // 内耳 — 暖蜜桃色 / Inner ears — warm peach
-  ctx.fillStyle = BLUSH_PEACH;
-  ctx.beginPath();
-  ctx.moveTo(tx - 10, ty - 22); ctx.lineTo(tx - 6, ty - 26); ctx.lineTo(tx - 2, ty - 22);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.moveTo(tx + 10, ty - 22); ctx.lineTo(tx + 6, ty - 26); ctx.lineTo(tx + 2, ty - 22);
-  ctx.fill();
-  
-  // 开心闭眼 ^_^ / Happy closed eyes ^_^
-  ctx.strokeStyle = EYE_BROWN;
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.arc(tx - 8, ty - 8, 6, Math.PI, 0);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.arc(tx + 8, ty - 8, 6, Math.PI, 0);
-  ctx.stroke();
-  
-  // 大腮红 — 暖蜜桃色 / Big blush — warm peach
-  ctx.fillStyle = BLUSH_PEACH;
-  ctx.beginPath();
-  ctx.ellipse(tx - 14, ty, 8, 5, 0, 0, Math.PI * 2);
-  ctx.ellipse(tx + 14, ty, 8, 5, 0, 0, Math.PI * 2);
-  ctx.fill();
-  
-  // 开心鼻子 — 柔和粉色 / Happy nose — soft pink
-  ctx.fillStyle = NOSE_PINK;
-  ctx.beginPath();
-  ctx.arc(tx, ty, 4, 0, Math.PI * 2);
-  ctx.fill();
-  
-  // 开心嘴巴 / Happy mouth
-  ctx.strokeStyle = EYE_BROWN;
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.arc(tx, ty + 2, 6, 0.2 * Math.PI, 0.8 * Math.PI);
-  ctx.stroke();
-  
-  // 爪子里拿着面包 / Bread in paw — warm color
-  ctx.fillStyle = ORANGE_BREAD;
-  ctx.beginPath();
-  ctx.ellipse(tx + 18, ty + 12, 14, 10, 0.3, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.strokeStyle = ORANGE_BREAD_STROKE;
-  ctx.lineWidth = 2;
-  ctx.stroke();
-}
-
-export default {
-  renderTowers
-};
+export default { renderTowers };
